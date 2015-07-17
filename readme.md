@@ -7,5 +7,14 @@ Create with Lumen and Vuejs.
 ## To deploy
 Make sure .env is populated correctly (see .env.example)
 
+## To deploy to subdirectory
+cp public/index.php index.php
+
+Modify index.php to have these two lines:
+
+	$app = require __DIR__.'/bootstrap/app.php';
+
+	$app->run($app['request']);
+
 ## To build
     gulp
