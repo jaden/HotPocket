@@ -16,5 +16,8 @@ Modify index.php to have these two lines:
 
 	$app->run($app['request']);
 
+In resources/view/index.php:
+	<script src="public/js/bundle.min.js"></script>
+
 ## To build
     gulp
