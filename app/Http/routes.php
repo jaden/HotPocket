@@ -19,7 +19,7 @@ $app->get('/', function () {
 
 $app->post('/auth', function (Request $request) {
 
-	if ($request->has('passphrase') && $request->input('passphrase') === "PocketWatch") {
+	if ($request->has('passphrase') && $request->input('passphrase') === $_ENV['POCKET_PASSPHRASE']) {
     	return json_encode(["token" => $_ENV['POCKET_ROUTE_TOKEN'], 'status' => true]);
 	}
 
