@@ -37,7 +37,7 @@ new Vue({
 
 			e.preventDefault();
 
-			this.$http.post('auth', {passphrase: this.passphrase}, function(data, status, request) {
+			this.$http.post('/auth', {passphrase: this.passphrase}, function(data, status, request) {
 
 				this.cacheStore(this.tokenCacheKey, data.token);
 
@@ -52,7 +52,7 @@ new Vue({
 
 		updateItems: function() {
 
-			this.$http.post('items', {token: this.token, count: this.count}, function(data, status, request) {
+			this.$http.post('/items', {token: this.token, count: this.count}, function(data, status, request) {
 
 				// Cache the items
 				this.cacheStore(this.itemsCacheKey, data.list);
@@ -66,7 +66,7 @@ new Vue({
 
 		doAction: function(action, item_id) {
 
-			this.$http.post('item/' + item_id + '/' + action, {token: this.token}, function(data, status, request) {
+			this.$http.post('/item/' + item_id + '/' + action, {token: this.token}, function(data, status, request) {
 
 				// Remove item we performed the action on
 				this.items.$delete(item_id);
@@ -81,7 +81,7 @@ new Vue({
 		getNextItem: function() {
 			var offset = this.count - 1; // offset is 0-based
 
-			this.$http.post('items', {token: this.token, count: 1, offset: offset}, function(data, status, request) {
+			this.$http.post('/items', {token: this.token, count: 1, offset: offset}, function(data, status, request) {
 
 				// Add the new item
 				var item_id = Object.keys(data.list)[0];

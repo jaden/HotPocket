@@ -7,7 +7,7 @@ Create with Lumen and Vuejs.
 ## To deploy
 Make sure .env is populated correctly (see .env.example)
 
-## To deploy to subdirectory
+## To deploy to subdirectory - too much of a pain. Just use a subdomain.
 cp public/index.php index.php
 
 Modify index.php to have these two lines:
