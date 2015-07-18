@@ -3,14 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>My Pocket Links</title>
-    <!-- <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css"> -->
+    <title>Hot Pocket Links</title>
     <link rel="stylesheet" type="text/css" href="/css/bootstrap/bootstrap.min.css">
     <style>
         body {
             color: #555;
             line-height: 2em;
-            font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
         }
 
         #passphrase {
