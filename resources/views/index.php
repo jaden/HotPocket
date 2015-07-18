@@ -53,6 +53,6 @@
         </div>
     </div>
 
-    <script src="/js/bundle.min.js"></script>
+    <script async src="/js/bundle.min.js"></script>
 </body>
 </html>
