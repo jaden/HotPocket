@@ -11,7 +11,7 @@ new Vue({
 		passphrase: '',
 		token: '',
 		items: {},
-		count: 5,
+		count: 10,
 		tokenCacheKey: 'pocket-token',
 		itemsCacheKey: 'pocket-items',
 	},
@@ -47,7 +47,7 @@ new Vue({
 
 			}).error(function (data, status, request) {
             	alert('An error occurred');
-        	})
+        	});
 		},
 
 		updateItems: function() {
@@ -61,7 +61,7 @@ new Vue({
 
 			}).error(function (data, status, request) {
             	alert('An error occurred');
-        	})
+        	});
 		},
 
 		doAction: function(action, item_id) {
@@ -71,28 +71,43 @@ new Vue({
 				// Remove item we performed the action on
 				this.items.$delete(item_id);
 
-				this.getNextItem();
+				// Get more items only if we've archived/deleted at least 50%
+				var halfCount = Math.round(this.count / 2);
+				if (this.itemsKeys.length <= halfCount) {
+					this.getMoreItems(halfCount);
+				} else {
+					console.log('items remaining: ' + this.itemsKeys.length);
+				}
 
 			}).error(function (data, status, request) {
             	alert('An error occurred');
-        	})
+        	});
 		},
 
-		getNextItem: function() {
-			var offset = this.count - 1; // offset is 0-based
+		// num - The number of new items to retrieve
+		getMoreItems: function(num) {
 
-			this.$http.post('/items', {token: this.token, count: 1, offset: offset}, function(data, status, request) {
+			// The offset is 0-based, where to start retrieving items from Pocket API
+			var postData = {
+				token: this.token,
+				count: num,
+				offset: this.count - this.itemsKeys.length - 1
+			};
 
-				// Add the new item
-				var item_id = Object.keys(data.list)[0];
-				this.items.$add(item_id, data.list[item_id]);
+			this.$http.post('/items', postData, function(data, status, request) {
 
-				// Cache the updated items list
+				// Add the downloaded items to the items list.
+				var newKeys = Object.keys(data.list);
+				newKeys.forEach(function(key) {
+					this.items.$add(key, data.list[key]);
+				}.bind(this));
+
+				// Cache the list of items
 				this.cacheStore(this.itemsCacheKey, data.list);
 
 			}).error(function (data, status, request) {
             	alert('An error occurred');
-        	})
+        	});
 		},
 
 		cacheKeyExists: function(key) {
@@ -136,6 +151,13 @@ new Vue({
 				return domain.substr(4);
 			}
 			return domain;
+		}
+	},
+
+	computed: {
+
+		itemsKeys: function() {
+			return Object.keys(this.items);
 		}
 	}
 });

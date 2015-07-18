@@ -41,6 +41,7 @@ class ItemController extends BaseController
     		return "Invalid action " . $action;
     	}
 
+    	// Pocket API expects a JSON string in the value of actions. Guzzle url encodes it for us.
     	return $this->sendApiRequest('send', ['actions' => '[{"action":"' . $action . '","item_id":' . $item_id . '}]']);
     }
 

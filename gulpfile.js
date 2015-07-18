@@ -1,5 +1,7 @@
 'use strict';
 
+// TODO Run jshint on build
+
 var browserify = require('browserify');
 var gulp = require('gulp');
 var source = require('vinyl-source-stream');
