@@ -66,10 +66,10 @@ new Vue({
 
 		doAction: function(action, item_id) {
 
-			this.$http.post('/item/' + item_id + '/' + action, {token: this.token}, function(data, status, request) {
+			// Remove item from the list immediately, then make POST call
+			this.items.$delete(item_id);
 
-				// Remove item we performed the action on
-				this.items.$delete(item_id);
+			this.$http.post('/item/' + item_id + '/' + action, {token: this.token}, function(data, status, request) {
 
 				// Get more items only if we've archived/deleted at least 50%
 				var halfCount = Math.round(this.count / 2);
