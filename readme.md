@@ -7,7 +7,7 @@ Create with Lumen and Vuejs.
 ## To deploy
 Make sure .env is populated correctly (see .env.example)
 
-Push changes to bitbucket repo
+Git push changes to bitbucket repo
 
 Add public SSH key of user to bitbucket as a deployment key
 

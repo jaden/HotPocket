@@ -19,6 +19,10 @@
             display: none;
         }
 
+        .clickable {
+            cursor: pointer;
+        }
+
     </style>
 </head>
 <body>
@@ -46,7 +50,7 @@
                     <div>Open and:
                         <a href="{{ resolved_url }}" target="_blank" v-on="click: doAction('delete', item_id)">DELETE</a> |
                         <a href="{{ resolved_url }}" target="_blank" v-on="click: doAction('archive', item_id)">ARCHIVE</a> OR
-                        <a v-on="click: actionOnItem('delete', item_id)">JUST DELETE</a>
+                        <a class="clickable" v-on="click: doAction('delete', item_id)">JUST DELETE</a>
                     </div>
                 </li>
             </ol>
