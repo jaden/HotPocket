@@ -20,15 +20,15 @@ new Vue({
 
 		this.token = this.cacheGetString(this.tokenCacheKey);
 
-    	if (this.token) {
+		if (this.token) {
 
-    		// Prefill with items in cache before retrieving new ones
-    		if (this.cacheKeyExists(this.itemsCacheKey)) {
-    			this.items = this.cacheGetJson(this.itemsCacheKey);
-    		}
+			// Prefill with items in cache before retrieving new ones
+			if (this.cacheKeyExists(this.itemsCacheKey)) {
+				this.items = this.cacheGetJson(this.itemsCacheKey);
+			}
 
-    		this.updateItems();
-    	}
+			this.updateItems();
+		}
 	},
 
 	methods: {
@@ -46,8 +46,8 @@ new Vue({
 				this.updateItems();
 
 			}).error(function (data, status, request) {
-            	alert('An error occurred');
-        	});
+				alert('An error occurred');
+			});
 		},
 
 		updateItems: function() {
@@ -60,8 +60,8 @@ new Vue({
 				this.items = data.list;
 
 			}).error(function (data, status, request) {
-            	alert('An error occurred');
-        	});
+				alert('An error occurred');
+			});
 		},
 
 		doAction: function(action, item_id) {
@@ -80,8 +80,8 @@ new Vue({
 				}
 
 			}).error(function (data, status, request) {
-            	alert('An error occurred');
-        	});
+				alert('An error occurred');
+			});
 		},
 
 		// num - The number of new items to retrieve
@@ -106,8 +106,8 @@ new Vue({
 				this.cacheStore(this.itemsCacheKey, data.list);
 
 			}).error(function (data, status, request) {
-            	alert('An error occurred');
-        	});
+				alert('An error occurred');
+			});
 		},
 
 		cacheKeyExists: function(key) {
@@ -151,6 +151,15 @@ new Vue({
 				return domain.substr(4);
 			}
 			return domain;
+		},
+
+		// If the value is undefined or empty, replace it with a default value.
+		getDefault: function(string, defaultValue) {
+			if (typeof string === 'undefined' || string.length === 0) {
+				return defaultValue;
+			}
+
+			return string;
 		}
 	},
 

@@ -39,7 +39,7 @@
 
             <ol class="list-group" style="margin-top: 30px">
                 <li v-repeat="items | orderBy 'time_added' -1" class="list-group-item">
-                    <strong style="font-size:1.2em">{{ resolved_title }}</strong>
+                    <strong style="font-size:1.2em">{{ resolved_title | getDefault '(No Title Found)' }}</strong>
                     <div>
                         <small class="item_link">
                             <a style="color:#999;margin-right:10px" href="{{ resolved_url }}">{{ resolved_url | baseUrl }}</a>
