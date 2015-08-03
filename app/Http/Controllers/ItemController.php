@@ -9,7 +9,7 @@ use Laravel\Lumen\Routing\Controller as BaseController;
 class ItemController extends BaseController
 {
     /**
-     * Get the pocket items for the user
+     * Gets the pocket items for the user.
      *
      * @return Response
      */
@@ -26,7 +26,7 @@ class ItemController extends BaseController
     }
 
     /**
-     * Performs the action on the API
+     * Performs the specified action on the API.
      *
      * @param string $item_id   The item to perform the action on
      * @param string $action    The action to perform
@@ -46,7 +46,7 @@ class ItemController extends BaseController
     }
 
     /**
-     *  Validates the token
+     *  Validates the token.
      *
      *  @param  Request   The incoming request
      *  @return boolean   Returns whether the token is valid
@@ -57,7 +57,7 @@ class ItemController extends BaseController
     }
 
     /**
-     * Send an API request to Pocket API
+     * Sends an API request to Pocket API.
      * @param  string $operation        The API operation to perform ('get' or 'send')
      * @param  array  $extraParameters  Extra parameters for the request
      * @return string                   The response from the call

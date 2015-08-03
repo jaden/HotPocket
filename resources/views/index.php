@@ -23,6 +23,10 @@
             cursor: pointer;
         }
 
+        .container {
+            margin-bottom: 20px;
+        }
+
     </style>
 </head>
 <body>
@@ -54,6 +58,14 @@
                     </div>
                 </li>
             </ol>
+
+            <div class="text-center">Page {{ currentPage }}</div>
+
+            <button v-if="this.current_offset > 0"
+                    class="pull-left btn btn-primary"
+                    v-on="click: getItems(this.count, this.current_offset - this.count) ">&lt;&lt; Prev</button>
+            <button class="pull-right btn btn-primary"
+                    v-on="click: getItems(this.count, this.current_offset + this.count) ">Next &gt;&gt;</button>
         </div>
     </div>
 

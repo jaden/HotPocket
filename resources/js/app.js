@@ -12,6 +12,7 @@ new Vue({
 		token: '',
 		items: {},
 		count: 10,
+		current_offset: 0,
 		tokenCacheKey: 'pocket-token',
 		itemsCacheKey: 'pocket-items',
 	},
@@ -27,7 +28,7 @@ new Vue({
 				this.items = this.cacheGetJson(this.itemsCacheKey);
 			}
 
-			this.updateItems();
+			this.getItems(this.count, 0);
 		}
 	},
 
@@ -43,21 +44,7 @@ new Vue({
 
 				this.token = data.token;
 
-				this.updateItems();
-
-			}).error(function (data, status, request) {
-				alert('An error occurred');
-			});
-		},
-
-		updateItems: function() {
-
-			this.$http.post('/items', {token: this.token, count: this.count}, function(data, status, request) {
-
-				// Cache the items
-				this.cacheStore(this.itemsCacheKey, data.list);
-
-				this.items = data.list;
+				this.getItems(this.count, 0);
 
 			}).error(function (data, status, request) {
 				alert('An error occurred');
@@ -74,39 +61,81 @@ new Vue({
 				// Get more items only if we've archived/deleted at least 50%
 				var halfCount = Math.round(this.count / 2);
 				if (this.itemsKeys.length <= halfCount) {
-					this.getMoreItems(halfCount);
-				} else {
-					console.log('items remaining: ' + this.itemsKeys.length);
+					this.getMoreItems(halfCount, this.itemsKeys.length);
 				}
 
-			}).error(function (data, status, request) {
+			}.bind(this)).error(function (data, status, request) {
 				alert('An error occurred');
 			});
 		},
 
-		// num - The number of new items to retrieve
-		getMoreItems: function(num) {
+		// Appends retrieved items to the list.
+		// num    - The number of new items to retrieve
+		// offset - The 0-based offset of where to start retrieving items from the Pocket API.
+		getMoreItems: function(num, offset) {
 
-			// The offset is 0-based, where to start retrieving items from Pocket API
 			var postData = {
-				token: this.token,
-				count: num,
-				offset: this.count - this.itemsKeys.length - 1
+				token:  this.token,
+				count:  num,
+				offset: offset
 			};
+
+			this.sendPostRequest(postData, this.addItems);
+		},
+
+		// Replaces the existing list of items.
+		getItems: function(num, offset) {
+
+			var postData = {
+				token:  this.token,
+				count:  num,
+				offset: offset
+			};
+
+			this.current_offset = offset;
+
+			this.sendPostRequest(postData, this.replaceItems);
+		},
+
+		// Callback function for sendPostRequest
+		addItems: function(newItems) {
+
+			// Add the downloaded items to the items list.
+			Object.keys(newItems).forEach(function(key) {
+				this.items.$add(key, newItems[key]);
+			}.bind(this));
+		},
+
+		// Callback function for sendPostRequest
+		replaceItems: function(newItems) {
+
+			// Remove all existing items.
+			Object.keys(this.items).forEach(function(key) {
+				this.items.$delete(key);
+			}.bind(this));
+
+			this.addItems(newItems);
+		},
+
+		// postData = object with the token, count and offset
+		// callback = function that takes this and an object of items
+		sendPostRequest: function(postData, callback) {
 
 			this.$http.post('/items', postData, function(data, status, request) {
 
-				// Add the downloaded items to the items list.
-				var newKeys = Object.keys(data.list);
-				newKeys.forEach(function(key) {
-					this.items.$add(key, data.list[key]);
-				}.bind(this));
+				if (data.list === null || typeof data.list === 'undefined') {
+					console.log('The request was successful, but there were no items');
+				}
 
-				// Cache the list of items
-				this.cacheStore(this.itemsCacheKey, data.list);
+				callback(data.list);
 
-			}).error(function (data, status, request) {
-				alert('An error occurred');
+				// Only cache the first page of items.
+				if (this.current_offset === 0) {
+					this.cacheStore(this.itemsCacheKey, data.list);
+				}
+
+			}.bind(this)).error(function (data, status, request) {
+				alert('An error occurred getting items');
 			});
 		},
 
@@ -131,7 +160,7 @@ new Vue({
 		},
 
 		cacheGetJson: function(key) {
-			if (! this.cacheKeyExists(key)) {
+			if (! this.cacheKeyExists(key) || localStorage.getItem(key) === 'undefined') {
 				return {};
 			}
 
@@ -167,6 +196,10 @@ new Vue({
 
 		itemsKeys: function() {
 			return Object.keys(this.items);
+		},
+
+		currentPage: function() {
+			return (this.current_offset / this.count) + 1;
 		}
 	}
 });
