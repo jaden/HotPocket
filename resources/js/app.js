@@ -61,7 +61,7 @@ new Vue({
 				// Get more items only if we've archived/deleted at least 50%
 				var halfCount = Math.round(this.count / 2);
 				if (this.itemsKeys.length <= halfCount) {
-					this.getMoreItems(halfCount, this.itemsKeys.length);
+					this.appendItems(halfCount, this.itemsKeys.length);
 				}
 
 			}.bind(this)).error(function (data, status, request) {
@@ -72,7 +72,7 @@ new Vue({
 		// Appends retrieved items to the list.
 		// num    - The number of new items to retrieve
 		// offset - The 0-based offset of where to start retrieving items from the Pocket API.
-		getMoreItems: function(num, offset) {
+		appendItems: function(num, offset) {
 
 			var postData = {
 				token:  this.token,
