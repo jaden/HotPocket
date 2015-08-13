@@ -4,50 +4,84 @@ Vue.use(require('vue-resource'));
 var moment = require('moment');
 var URL = require('url-parse');
 
+var REQUEST_TOKEN_CACHE_KEY = 'pocket-request-token';
+var ACCESS_TOKEN_CACHE_KEY  = 'pocket-access-token';
+var ITEMS_CACHE_KEY         = 'pocket-items';
+var USERNAME_CACHE_KEY      = 'pocket-username';
+
+// TODO Only update list when the last item on the page is removed.
+
 new Vue({
-	el: '#items',
+	el: '#pocketApp',
 
 	data: {
-		passphrase: '',
-		token: '',
+		access_token: '',
+		username: '',
 		items: {},
-		count: 10,
+		count: 7,
 		current_offset: 0,
-		tokenCacheKey: 'pocket-token',
-		itemsCacheKey: 'pocket-items',
+		status_message: '',
 	},
 
 	created: function () {
 
-		this.token = this.cacheGetString(this.tokenCacheKey);
+		this.access_token = this.cacheGetString(ACCESS_TOKEN_CACHE_KEY);
 
-		if (this.token) {
+		if (this.access_token) {
+
+			this.username = this.cacheGetString(USERNAME_CACHE_KEY);
 
 			// Prefill with items in cache before retrieving new ones
-			if (this.cacheKeyExists(this.itemsCacheKey)) {
-				this.items = this.cacheGetJson(this.itemsCacheKey);
+			if (this.cacheKeyExists(ITEMS_CACHE_KEY)) {
+				this.items = this.cacheGetJson(ITEMS_CACHE_KEY);
 			}
 
 			this.getItems(this.count, 0);
+		} else if (this.cacheKeyExists(REQUEST_TOKEN_CACHE_KEY)) {
+			this.getAccessToken();
 		}
 	},
 
 	methods: {
 
-		getToken: function(e) {
+		authorizeWithPocket: function(e) {
 
-			e.preventDefault();
+			// Get a request token if it hasn't been retrieved
+			if (! this.cacheKeyExists(REQUEST_TOKEN_CACHE_KEY)) {
+				this.getRequestToken();
+			}
+		},
 
-			this.$http.post('/auth', {passphrase: this.passphrase}, function(data, status, request) {
+		getRequestToken: function() {
+			this.$http.get('/auth/requestToken', function(data, status, request) {
 
-				this.cacheStore(this.tokenCacheKey, data.token);
+				var request_token = data.code;
 
-				this.token = data.token;
+				this.cacheStore(REQUEST_TOKEN_CACHE_KEY, request_token);
 
-				this.getItems(this.count, 0);
+				console.log('request_token: ' + request_token);
+
+				window.location.replace('https://getpocket.com/auth/authorize?' +
+					'request_token=' + request_token +
+					'&redirect_uri=' + window.location.origin
+				);
 
 			}).error(function (data, status, request) {
 				alert('An error occurred');
+			});
+		},
+
+		getAccessToken: function() {
+			var postData = {code: this.cacheGetString(REQUEST_TOKEN_CACHE_KEY)};
+
+			this.$http.post('/auth/accessToken', postData, function(data, status, request) {
+				this.access_token = data.access_token;
+				this.username = data.username;
+
+				this.cacheStore(ACCESS_TOKEN_CACHE_KEY, this.access_token);
+				this.cacheStore(USERNAME_CACHE_KEY, this.username);
+
+				this.getItems(this.count, 0);
 			});
 		},
 
@@ -56,40 +90,34 @@ new Vue({
 			// Remove item from the list immediately, then make POST call
 			this.items.$delete(item_id);
 
-			this.$http.post('/item/' + item_id + '/' + action, {token: this.token}, function(data, status, request) {
+			var postData = {
+				access_token: this.access_token
+			};
 
-				// Get more items only if we've archived/deleted at least 50%
-				var halfCount = Math.round(this.count / 2);
-				if (this.itemsKeys.length <= halfCount) {
-					this.appendItems(halfCount, this.itemsKeys.length);
+			this.setStatus('Updating item...');
+
+			this.$http.post('/item/' + item_id + '/' + action, postData, function(data, status, request) {
+
+				this.clearStatus();
+
+				// Get the next page of items if there aren't any left.
+				if (this.itemsKeys.length === 0) {
+					this.getItems(this.count, 0);
 				}
 
 			}.bind(this)).error(function (data, status, request) {
+				this.clearStatus();
 				alert('An error occurred');
 			});
-		},
-
-		// Appends retrieved items to the list.
-		// num    - The number of new items to retrieve
-		// offset - The 0-based offset of where to start retrieving items from the Pocket API.
-		appendItems: function(num, offset) {
-
-			var postData = {
-				token:  this.token,
-				count:  num,
-				offset: offset
-			};
-
-			this.sendPostRequest(postData, this.addItems);
 		},
 
 		// Replaces the existing list of items.
 		getItems: function(num, offset) {
 
 			var postData = {
-				token:  this.token,
-				count:  num,
-				offset: offset
+				access_token:  this.access_token,
+				count:         num,
+				offset:        offset
 			};
 
 			this.current_offset = offset;
@@ -110,7 +138,7 @@ new Vue({
 		replaceItems: function(newItems) {
 
 			// Remove all existing items.
-			Object.keys(this.items).forEach(function(key) {
+			this.itemsKeys.forEach(function(key) {
 				this.items.$delete(key);
 			}.bind(this));
 
@@ -121,7 +149,11 @@ new Vue({
 		// callback = function that takes this and an object of items
 		sendPostRequest: function(postData, callback) {
 
+			this.setStatus('Getting items...');
+
 			this.$http.post('/items', postData, function(data, status, request) {
+
+				this.clearStatus();
 
 				if (data.list === null || typeof data.list === 'undefined') {
 					console.log('The request was successful, but there were no items');
@@ -131,12 +163,24 @@ new Vue({
 
 				// Only cache the first page of items.
 				if (this.current_offset === 0) {
-					this.cacheStore(this.itemsCacheKey, data.list);
+					this.cacheStore(ITEMS_CACHE_KEY, data.list);
 				}
 
 			}.bind(this)).error(function (data, status, request) {
+				this.clearStatus();
 				alert('An error occurred getting items');
-			});
+			}.bind(this));
+		},
+
+		logout: function() {
+			this.cacheRemove(REQUEST_TOKEN_CACHE_KEY);
+			this.cacheRemove(ACCESS_TOKEN_CACHE_KEY);
+			this.cacheRemove(ITEMS_CACHE_KEY);
+			this.cacheRemove(USERNAME_CACHE_KEY);
+
+			this.username = '';
+			this.access_token = '';
+			this.current_offset = 0;
 		},
 
 		cacheKeyExists: function(key) {
@@ -165,7 +209,19 @@ new Vue({
 			}
 
 			return JSON.parse(localStorage.getItem(key));
-		}
+		},
+
+		cacheRemove: function(key) {
+			localStorage.removeItem(key);
+		},
+
+		setStatus: function(msg) {
+			this.status_message = msg;
+		},
+
+		clearStatus: function() {
+			this.status_message = '';
+		},
 	},
 
 	filters: {

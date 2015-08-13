@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Hot Pocket Links</title>
+    <title>SnapPocket</title>
     <link rel="stylesheet" type="text/css" href="/css/bootstrap/bootstrap.min.css">
     <style>
         body {
@@ -11,8 +11,8 @@
             line-height: 2em;
         }
 
-        #passphrase {
-            margin-top: 10px;
+        #login {
+            margin-top: 50px;
         }
 
         [v-cloak] {
@@ -30,17 +30,31 @@
     </style>
 </head>
 <body>
-    <div class="container">
-        <div id="items" v-cloak>
-            <div id="passphrase" class="text-center">
-                <form v-show="! token" v-on="submit: getToken">
-                    <div class="form-group form-inline">
-                        <input type="text" v-model="passphrase" placeholder="Enter the passphrase" class="form-control input-lg" autofocus>
-                        <input type="submit" value="Submit" class="form-control input-lg">
-                    </div>
-                </form>
-            </div>
+    <div id="pocketApp" class="container">
 
+        <nav class="navbar navbar-default">
+        <div class="container-fluid">
+          <div class="navbar-header">
+            <a class="navbar-brand" href="#">SnapPocket</a>
+          </div>
+          <div id="navbar" v-cloak v-show="username">
+            <ul class="nav navbar-nav navbar-right">
+              <li class="dropdown">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">{{ username }} <span class="caret"></span></a>
+                <ul class="dropdown-menu">
+                    <li><a href="" v-on="click: logout">Logout</a></li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </nav>
+
+        <div id="login" class="text-center" v-cloak v-show="! access_token">
+            <button class="btn btn-lg btn-success" v-on="click: authorizeWithPocket">Log in with Pocket</a>
+        </div>
+
+        <div id="items" v-cloak v-show="access_token">
             <ol class="list-group" style="margin-top: 30px">
                 <li v-repeat="items | orderBy 'time_added' -1" class="list-group-item">
                     <strong style="font-size:1.2em">{{ resolved_title | getDefault '(No Title Found)' }}</strong>
@@ -59,6 +73,8 @@
                 </li>
             </ol>
 
+            <div id="status" class="text-center">{{ status_message }}</div>
+
             <div class="text-center">Page {{ currentPage }}</div>
 
             <button v-if="this.current_offset > 0"
@@ -70,5 +86,7 @@
     </div>
 
     <script async src="/js/bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
+    <script src="/js/bootstrap.min.js"></script>
 </body>
 </html>

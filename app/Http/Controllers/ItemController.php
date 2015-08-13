@@ -15,14 +15,13 @@ class ItemController extends BaseController
      */
     public function retrieveItems(Request $request)
     {
-		if (! $this->isValidToken($request->input('token'))) {
-    		return "Invalid token";
-    	}
-
     	$count = $request->input('count', 10);
     	$offset = $request->input('offset', 0);
 
-        return $this->sendApiRequest('get', ['count' => $count, 'offset' => $offset]);
+        return $this->sendApiRequest('get', [
+            'access_token' => $request->input('access_token'),
+            'count' => $count,
+            'offset' => $offset]);
     }
 
     /**
@@ -33,47 +32,53 @@ class ItemController extends BaseController
      */
     public function performAction(Request $request, $item_id, $action)
     {
-    	if (! $this->isValidToken($request->input('token'))) {
-    		return "Invalid token";
-    	}
-
     	if ($action != 'archive' && $action != 'delete') {
     		return "Invalid action " . $action;
     	}
 
     	// Pocket API expects a JSON string in the value of actions. Guzzle url encodes it for us.
-    	return $this->sendApiRequest('send', ['actions' => '[{"action":"' . $action . '","item_id":' . $item_id . '}]']);
+    	return $this->sendApiRequest('send', [
+                'access_token' => $request->input('access_token'),
+                'actions' => '[{"action":"' . $action . '","item_id":' . $item_id . '}]'
+            ]);
     }
 
     /**
-     *  Validates the token.
-     *
-     *  @param  Request   The incoming request
-     *  @return boolean   Returns whether the token is valid
+     * Gets the request token from the Pocket API
+     * @param  Request $request
+     * @return json           The JSON response from the Pocket API
      */
-    private function isValidToken($token)
+    public function getRequestToken(Request $request)
     {
-    	return $token === $_ENV['POCKET_ROUTE_TOKEN'];
+        return $this->sendApiRequest('oauth/request', ['redirect_uri' => $request->getUri()]);
     }
 
     /**
-     * Sends an API request to Pocket API.
-     * @param  string $operation        The API operation to perform ('get' or 'send')
+     * Uses the request token code to get an access token from the Pocket API
+     * @return json           The JSON response from the Pocket API
+     */
+    public function getAccessToken(Request $request)
+    {
+        return $this->sendApiRequest('oauth/authorize', ['code' => $request->input('code')]);
+    }
+
+    /**
+     * Sends an API request with the access token to Pocket API.
+     * @param  string $operation        The API operation to perform (e.g. 'oauth/request', 'get' or 'send')
      * @param  array  $extraParameters  Extra parameters for the request
-     * @return string                   The response from the call
+     * @return string                   The response from the API call.
      */
     private function sendApiRequest($operation, $extraParameters = [])
     {
     	$client = new Client();
-    	$results = $client->post($_ENV['POCKET_API_URL'] . $operation,
-    		['form_params' =>
-    			array_merge([
-	    			'consumer_key' => $_ENV['POCKET_CONSUMER_KEY'],
-	        		'access_token' => $_ENV['POCKET_ACCESS_TOKEN']
-	    		],
-	    		$extraParameters)
-    		]
-		);
+
+    	$results = $client->post($_ENV['POCKET_API_URL'] . $operation, [
+            'form_params' => array_merge(
+                ['consumer_key' => $_ENV['POCKET_CONSUMER_KEY']],
+    		    $extraParameters),
+
+            'headers' => ['X-Accept' => 'application/json'],
+        ]);
 
 		return $results->getBody();
     }

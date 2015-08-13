@@ -17,14 +17,8 @@ $app->get('/', function () {
     return view('index');
 });
 
-$app->post('/auth', function (Request $request) {
-
-	if ($request->has('passphrase') && $request->input('passphrase') === $_ENV['POCKET_PASSPHRASE']) {
-    	return json_encode(["token" => $_ENV['POCKET_ROUTE_TOKEN'], 'status' => true]);
-	}
-
-	return json_encode(['status' => false]);
-});
+$app->get('/auth/requestToken', 'ItemController@getRequestToken');
+$app->post('/auth/accessToken', 'ItemController@getAccessToken');
 
 $app->post('/items', 'ItemController@retrieveItems');
 $app->post('/item/{item_id}/{action}', 'ItemController@performAction');
