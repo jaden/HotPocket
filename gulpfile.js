@@ -14,7 +14,7 @@ gulp.task('browserify', function() {
 	// set up the browserify instance on a task basis
 	var b = browserify({
 		entries: './resources/js/app.js',
-		debug: true
+		debug: false
 	});
 
     return b.bundle()
