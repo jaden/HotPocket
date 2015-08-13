@@ -156,7 +156,11 @@ new Vue({
 				this.clearStatus();
 
 				if (data.list === null || typeof data.list === 'undefined') {
+					window.data = data;
 					console.log('The request was successful, but there were no items');
+					console.log(data);
+					alert('There was an error retrieving the items');
+					return;
 				}
 
 				callback(data.list);

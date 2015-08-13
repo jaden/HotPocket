@@ -80,6 +80,7 @@ class ItemController extends BaseController
             'headers' => ['X-Accept' => 'application/json'],
         ]);
 
-		return $results->getBody();
+        return response($results->getBody())
+            ->header('Content-Type', 'application/json; charset=utf-8');
     }
 }
