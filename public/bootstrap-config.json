@@ -387,8 +387,13 @@
     "forms.less",
     "buttons.less",
     "responsive-utilities.less",
-    "list-group.less"
+    "navs.less",
+    "navbar.less",
+    "list-group.less",
+    "dropdowns.less"
   ],
-  "js": [],
-  "customizerUrl": "http://getbootstrap.com/customize/?id=5ede04edc947a1ef47c7"
+  "js": [
+    "dropdown.js"
+  ],
+  "customizerUrl": "http://getbootstrap.com/customize/?id=3a87ee077825d99564c8"
 }
