@@ -141,7 +141,7 @@
     </div>
 
     <script async src="/js/bundle-1439572569887.min.js"></script>
-    <script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
-    <script src="/js/bootstrap.min.js"></script>
+    <script async src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
+    <script async src="/js/bootstrap.min.js"></script>
 </body>
 </html>
