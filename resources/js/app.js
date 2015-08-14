@@ -1,15 +1,14 @@
 var Vue = require('vue');
 Vue.use(require('vue-resource'));
 
-var moment = require('moment');
-var URL = require('url-parse');
+var moment    = require('moment');
+var URL       = require('url-parse');
+var nprogress = require('nprogress');
 
 var REQUEST_TOKEN_CACHE_KEY = 'pocket-request-token';
 var ACCESS_TOKEN_CACHE_KEY  = 'pocket-access-token';
 var ITEMS_CACHE_KEY         = 'pocket-items';
 var USERNAME_CACHE_KEY      = 'pocket-username';
-
-// TODO Only update list when the last item on the page is removed.
 
 new Vue({
 	el: '#pocketApp',
@@ -20,7 +19,6 @@ new Vue({
 		items: {},
 		count: 7,
 		current_offset: 0,
-		status_message: '',
 	},
 
 	created: function () {
@@ -94,11 +92,11 @@ new Vue({
 				access_token: this.access_token
 			};
 
-			this.setStatus('Updating item...');
+			this.startProgress();
 
 			this.$http.post('/item/' + item_id + '/' + action, postData, function(data, status, request) {
 
-				this.clearStatus();
+				this.endProgress();
 
 				// Get the next page of items if there aren't any left.
 				if (this.itemsKeys.length === 0) {
@@ -106,7 +104,7 @@ new Vue({
 				}
 
 			}.bind(this)).error(function (data, status, request) {
-				this.clearStatus();
+				this.endProgress();
 				alert('An error occurred');
 			});
 		},
@@ -149,11 +147,11 @@ new Vue({
 		// callback = function that takes this and an object of items
 		sendPostRequest: function(postData, callback) {
 
-			this.setStatus('Getting items...');
+			this.startProgress();
 
 			this.$http.post('/items', postData, function(data, status, request) {
 
-				this.clearStatus();
+				this.endProgress();
 
 				if (data.list === null || typeof data.list === 'undefined') {
 					window.data = data;
@@ -171,7 +169,7 @@ new Vue({
 				}
 
 			}.bind(this)).error(function (data, status, request) {
-				this.clearStatus();
+				this.endProgress();
 				alert('An error occurred getting items');
 			}.bind(this));
 		},
@@ -219,12 +217,12 @@ new Vue({
 			localStorage.removeItem(key);
 		},
 
-		setStatus: function(msg) {
-			this.status_message = msg;
+		startProgress: function () {
+			nprogress.start();
 		},
 
-		clearStatus: function() {
-			this.status_message = '';
+		endProgress: function() {
+			nprogress.done();
 		},
 	},
 
