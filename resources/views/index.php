@@ -66,7 +66,7 @@
         <nav class="navbar">
         <div class="container-fluid">
           <div class="navbar-header">
-            <a class="navbar-brand" href="#"><img src="/images/hotpocket-banner.png" alt="HotPocket"></a>
+            <a class="navbar-brand" href="#"><img src="/images/hotpocket.png" alt="HotPocket"></a>
           </div>
           <div id="navbar" v-cloak v-show="username">
             <ul class="nav navbar-nav navbar-right">
