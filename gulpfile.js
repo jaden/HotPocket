@@ -22,14 +22,14 @@ gulp.task('clean', function(callback) {
 });
 
 gulp.task('browserify', ['clean'], function() {
-	// set up the browserify instance on a task basis
+
 	var b = browserify({
 		entries: './resources/js/app.js',
 		debug: false
 	});
 
     return b.bundle()
-    	.pipe(source('bundle.min.js')) // this is a fake filename that doesn't exist (yet)
+    	.pipe(source('bundle.min.js')) // This file won't exist (yet)
     	.pipe(buffer())
     	.pipe(sourcemaps.init({loadMaps: true}))
 	        .pipe(uglify())
