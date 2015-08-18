@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>HotPocket</title>
-    <link rel="stylesheet" type="text/css" href="/css/bundle-1439572569887.min.css">
+    <link rel="stylesheet" type="text/css" href="/css/bundle-1439858295079.min.css">
     <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro' rel='stylesheet' type='text/css'>
     <style>
         body {
@@ -66,7 +66,7 @@
         <nav class="navbar">
         <div class="container-fluid">
           <div class="navbar-header">
-            <a class="navbar-brand" href="#"><img src="/images/hotpocket.png" alt="HotPocket"></a>
+            <a class="navbar-brand" href="/"><img src="/images/hotpocket.png" alt="HotPocket"></a>
           </div>
           <div id="navbar" v-cloak v-show="username">
             <ul class="nav navbar-nav navbar-right">
@@ -81,11 +81,11 @@
         </div>
       </nav>
 
-        <div id="login" class="text-center" v-cloak v-show="! access_token">
-            <button class="btn btn-lg btn-primary" v-on="click: authorizeWithPocket">Log in with Pocket</a>
+        <div id="login" class="text-center" v-cloak v-show="! username">
+            <button class="btn btn-lg btn-primary" v-on="click: authorize">Log in with Pocket</button>
         </div>
 
-        <div id="items" v-cloak v-show="access_token">
+        <div id="items" v-cloak v-show="username">
             <ol class="list-group" style="margin-top: 30px">
                 <li v-repeat="items | orderBy 'time_added' -1" class="list-group-item">
                     <strong style="font-size:1.3em">{{ resolved_title | getDefault '(No Title Found)' }}</strong>
@@ -140,8 +140,8 @@
         </div>
     </div>
 
-    <script async src="/js/bundle-1439572569887.min.js"></script>
-    <script async src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
+    <script async src="/js/bundle-1439858295079.min.js"></script>
+    <script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
     <script async src="/js/bootstrap.min.js"></script>
 </body>
 </html>

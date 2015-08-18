@@ -19,7 +19,7 @@ class ItemController extends BaseController
     	$offset = $request->input('offset', 0);
 
         return $this->sendApiRequest('get', [
-            'access_token' => $request->input('access_token'),
+            'access_token' => $request->session()->get('access_token'),
             'count' => $count,
             'offset' => $offset]);
     }
@@ -38,7 +38,7 @@ class ItemController extends BaseController
 
     	// Pocket API expects a JSON string in the value of actions. Guzzle url encodes it for us.
     	return $this->sendApiRequest('send', [
-                'access_token' => $request->input('access_token'),
+                'access_token' => $request->session()->get('access_token'),
                 'actions' => '[{"action":"' . $action . '","item_id":' . $item_id . '}]'
             ]);
     }
@@ -50,37 +50,102 @@ class ItemController extends BaseController
      */
     public function getRequestToken(Request $request)
     {
-        return $this->sendApiRequest('oauth/request', ['redirect_uri' => $request->getUri()]);
+        $redirect_uri = $request->root() . '/auth/callback';
+
+        $response = $this->sendApiRequest('oauth/request', ['redirect_uri' => $redirect_uri]);
+
+        if ($this->isErrorResponse($response)) {
+            return view('error')->withErrorMessage($response->content());
+        }
+
+        $request_token = json_decode($response->getContent())->code;
+
+        $request->session()->put('request_token', $request_token);
+
+        // TODO Probably a more elegant way to build up this URL
+        // with Symfony components
+        return response()->json([
+            'redirect_to' => 'https://getpocket.com/auth/authorize?' .
+                "request_token=$request_token" .
+                "&redirect_uri=$redirect_uri"]
+            );
     }
 
     /**
-     * Uses the request token code to get an access token from the Pocket API
-     * @return json           The JSON response from the Pocket API
+     * Handles the result of the authentication request.
+     * @param  Request $request
+     * @return            [description]
      */
-    public function getAccessToken(Request $request)
+    public function handleAuthCallback(Request $request)
     {
-        return $this->sendApiRequest('oauth/authorize', ['code' => $request->input('code')]);
+        $response = $this->sendApiRequest('oauth/authorize', ['code' => $request->session()->get('request_token')]);
+
+        if ($this->isErrorResponse($response)) {
+            return redirect('/');
+        }
+
+        $responseObj = json_decode($response->getContent());
+
+        $access_token = $responseObj->access_token;
+        $username = $responseObj->username;
+
+        $request->session()->put('access_token', $access_token);
+        $request->session()->put('username', $username);
+
+        return redirect('/');
+    }
+
+    /**
+     * Gets the username from the session (if it's set).
+     * @param  Request $request
+     * @return json           Containing the username { username: '...' }
+     */
+    public function getUsername(Request $request)
+    {
+        return response()->json(['username' => $request->session()->get('username', '')]);
+    }
+
+    /**
+     * Logs the user out by clearing the session.
+     * @param  Request $request
+     */
+    public function logout(Request $request)
+    {
+        $request->session()->flush();
+        return response()->json([]);
+    }
+
+    private function isErrorResponse($response)
+    {
+        return get_class($response) === 'Illuminate\Http\Response' &&
+            $response->getStatusCode() !== 200;
     }
 
     /**
      * Sends an API request with the access token to Pocket API.
      * @param  string $operation        The API operation to perform (e.g. 'oauth/request', 'get' or 'send')
      * @param  array  $extraParameters  Extra parameters for the request
-     * @return string                   The response from the API call.
+     * @return json                     The response from the API call.
+     * If there's an error, a Response object is returned with the status code and the error message
      */
     private function sendApiRequest($operation, $extraParameters = [])
     {
     	$client = new Client();
 
-    	$results = $client->post($_ENV['POCKET_API_URL'] . $operation, [
-            'form_params' => array_merge(
+        $response = $client->post($_ENV['POCKET_API_URL'] . $operation, [
+            'json' => array_merge(
                 ['consumer_key' => $_ENV['POCKET_CONSUMER_KEY']],
-    		    $extraParameters),
+                $extraParameters),
 
             'headers' => ['X-Accept' => 'application/json'],
+            'http_errors' => false
         ]);
 
-        return response($results->getBody())
+        if ($response->getStatusCode() !== 200) {
+            return response(head($response->getHeader('X-Error')), $response->getStatusCode());
+        }
+
+        return response($response->getBody())
             ->header('Content-Type', 'application/json; charset=utf-8');
     }
 }

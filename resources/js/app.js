@@ -5,8 +5,6 @@ var moment    = require('moment');
 var URL       = require('url-parse');
 var nprogress = require('nprogress');
 
-var REQUEST_TOKEN_CACHE_KEY = 'pocket-request-token';
-var ACCESS_TOKEN_CACHE_KEY  = 'pocket-access-token';
 var ITEMS_CACHE_KEY         = 'pocket-items';
 var USERNAME_CACHE_KEY      = 'pocket-username';
 
@@ -14,72 +12,61 @@ new Vue({
 	el: '#pocketApp',
 
 	data: {
-		access_token: '',
 		username: '',
 		items: {},
-		count: 7,
+		count: 8,
 		current_offset: 0,
 	},
 
 	created: function () {
 
-		this.access_token = this.cacheGetString(ACCESS_TOKEN_CACHE_KEY);
+		this.username = this.cacheGetString(USERNAME_CACHE_KEY);
 
-		if (this.access_token) {
+		if (this.username) {
 
-			this.username = this.cacheGetString(USERNAME_CACHE_KEY);
-
-			// Prefill with items in cache before retrieving new ones
+			// Populate items list from local storage before retrieving updated list.
 			if (this.cacheKeyExists(ITEMS_CACHE_KEY)) {
 				this.items = this.cacheGetJson(ITEMS_CACHE_KEY);
 			}
 
 			this.getItems(this.count, 0);
-		} else if (this.cacheKeyExists(REQUEST_TOKEN_CACHE_KEY)) {
-			this.getAccessToken();
+
+		} else {
+			this.getItemsIfLoggedIn();
 		}
 	},
 
 	methods: {
 
-		authorizeWithPocket: function(e) {
+		authorize: function() {
 
-			// Get a request token if it hasn't been retrieved
-			if (! this.cacheKeyExists(REQUEST_TOKEN_CACHE_KEY)) {
-				this.getRequestToken();
-			}
-		},
+			this.startProgress();
 
-		getRequestToken: function() {
-			this.$http.get('/auth/requestToken', function(data, status, request) {
+			this.$http.get('/auth/request', function(data, status, request) {
 
-				var request_token = data.code;
+				this.endProgress();
 
-				this.cacheStore(REQUEST_TOKEN_CACHE_KEY, request_token);
+				if (data.redirect_to) {
+					window.location = data.redirect_to;
+				}
 
-				console.log('request_token: ' + request_token);
-
-				window.location.replace('https://getpocket.com/auth/authorize?' +
-					'request_token=' + request_token +
-					'&redirect_uri=' + window.location.origin
-				);
-
-			}).error(function (data, status, request) {
-				alert('An error occurred');
 			});
 		},
 
-		getAccessToken: function() {
-			var postData = {code: this.cacheGetString(REQUEST_TOKEN_CACHE_KEY)};
+		getItemsIfLoggedIn: function() {
 
-			this.$http.post('/auth/accessToken', postData, function(data, status, request) {
-				this.access_token = data.access_token;
+			this.$http.get('/auth/user', function(data, status, request) {
+
+				if (! data.username) {
+					return;
+				}
+
 				this.username = data.username;
 
-				this.cacheStore(ACCESS_TOKEN_CACHE_KEY, this.access_token);
 				this.cacheStore(USERNAME_CACHE_KEY, this.username);
 
 				this.getItems(this.count, 0);
+
 			});
 		},
 
@@ -88,13 +75,9 @@ new Vue({
 			// Remove item from the list immediately, then make POST call
 			this.items.$delete(item_id);
 
-			var postData = {
-				access_token: this.access_token
-			};
-
 			this.startProgress();
 
-			this.$http.post('/item/' + item_id + '/' + action, postData, function(data, status, request) {
+			this.$http.post('/item/' + item_id + '/' + action, function(data, status, request) {
 
 				this.endProgress();
 
@@ -113,7 +96,6 @@ new Vue({
 		getItems: function(num, offset) {
 
 			var postData = {
-				access_token:  this.access_token,
 				count:         num,
 				offset:        offset
 			};
@@ -174,14 +156,16 @@ new Vue({
 			}.bind(this));
 		},
 
-		logout: function() {
-			this.cacheRemove(REQUEST_TOKEN_CACHE_KEY);
-			this.cacheRemove(ACCESS_TOKEN_CACHE_KEY);
+		logout: function(e) {
+
+			e.preventDefault();
+
+			this.$http.get('/auth/logout');
+
 			this.cacheRemove(ITEMS_CACHE_KEY);
 			this.cacheRemove(USERNAME_CACHE_KEY);
 
 			this.username = '';
-			this.access_token = '';
 			this.current_offset = 0;
 		},
 
@@ -229,7 +213,8 @@ new Vue({
 	filters: {
 
 		formatDate: function(date) {
-			return moment.unix(date).format('ddd, DD MMM YYYY HH:mm:ss');
+			// return moment.unix(date).format('ddd, DD MMM YYYY HH:mm:ss');
+			return moment.unix(date).fromNow();
 		},
 
 		baseUrl: function(url) {

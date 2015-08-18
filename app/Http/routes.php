@@ -17,8 +17,10 @@ $app->get('/', function () {
     return view('index');
 });
 
-$app->get('/auth/requestToken', 'ItemController@getRequestToken');
-$app->post('/auth/accessToken', 'ItemController@getAccessToken');
+$app->get('/auth/request', 'ItemController@getRequestToken');
+$app->get('/auth/callback', 'ItemController@handleAuthCallback');
+$app->get('/auth/user', 'ItemController@getUsername');
+$app->get('/auth/logout', 'ItemController@logout');
 
 $app->post('/items', 'ItemController@retrieveItems');
 $app->post('/item/{item_id}/{action}', 'ItemController@performAction');

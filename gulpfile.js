@@ -81,6 +81,6 @@ gulp.task('lint', function() {
 	    .pipe(jshint.reporter('default'));
 });
 
-gulp.task('watch', ['browserify'], function() {
-    gulp.watch('./resources/js/**/*.js', ['browserify']);
+gulp.task('watch', ['cache-bust'], function() {
+    gulp.watch('./resources/js/**/*.js', ['cache-bust']);
 });
