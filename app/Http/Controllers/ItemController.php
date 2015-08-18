@@ -133,7 +133,8 @@ class ItemController extends BaseController
     	$client = new Client();
 
         $response = $client->post($_ENV['POCKET_API_URL'] . $operation, [
-            'json' => array_merge(
+            // NOTE: Leave this as form_params, not json. That's how the Pocket API wants it.
+            'form_params' => array_merge(
                 ['consumer_key' => $_ENV['POCKET_CONSUMER_KEY']],
                 $extraParameters),
 
