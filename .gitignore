@@ -1,3 +1,6 @@
 /vendor
 /node_modules
 .env
+.timestamp.php
+public/css/bundle*
+public/js/bundle*

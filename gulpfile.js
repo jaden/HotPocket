@@ -13,6 +13,7 @@ var jshint     = require('gulp-jshint');
 var replace    = require('gulp-replace');
 var rename     = require('gulp-rename');
 var del        = require('del');
+var fs         = require('fs');
 
 gulp.task('clean', function(callback) {
 	del([
@@ -61,16 +62,7 @@ gulp.task('cache-bust', ['browserify', 'styles'], function() {
   		.pipe(rename("./public/js/bundle-" + timestamp + ".min.js"))
   		.pipe(gulp.dest("."));
 
-	return gulp.src('resources/views/index.php',
-		{ base: '.' }) // To overwrite the src file http://stackoverflow.com/questions/22418799/can-gulp-overwrite-all-src-files
-
-		.pipe(replace(/href="\/css\/bundle-[0-9]+\.min\.css"/,
-			'href="/css/bundle-' + timestamp + '.min.css"'))
-
-		.pipe(replace(/src="\/js\/bundle-[0-9]+\.min\.js"/,
-			'src="/js/bundle-' + timestamp + '.min.js"'))
-
-		.pipe(gulp.dest('.')); // Replace the source file
+  	fs.writeFileSync('.timestamp.php', "<?php $timestamp = '" + timestamp + "';");
 });
 
 gulp.task('default', ['cache-bust']);

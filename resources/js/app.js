@@ -152,13 +152,16 @@ new Vue({
 
 			}.bind(this)).error(function (data, status, request) {
 				this.endProgress();
-				alert('An error occurred getting items');
+				this.logout();
+				alert("Error from server: " + data);
 			}.bind(this));
 		},
 
 		logout: function(e) {
 
-			e.preventDefault();
+			if (e) {
+				e.preventDefault();
+			}
 
 			this.$http.get('/auth/logout');
 
