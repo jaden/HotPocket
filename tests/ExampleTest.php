@@ -7,9 +7,9 @@ class ExampleTest extends TestCase
      *
      * @return void
      */
-    public function testBasicExample()
+    public function testLoggedOutUser()
     {
         $this->visit('/')
-             ->see('Submit');
+             ->see('Log in with Pocket');
     }
 }
