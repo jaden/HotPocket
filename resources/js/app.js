@@ -84,6 +84,18 @@ new Vue({
 			this.sendPostRequest(postData, this.replaceItems);
 		},
 
+		getItemsCount: function() {
+
+			this.startProgress();
+
+			this.$http.get('/items/all', function(data, status, request) {
+
+				this.endProgress();
+
+				alert('You currently have ' + Object.keys(data.list).length + ' items');
+			});
+		},
+
 		// Callback function for sendPostRequest
 		addItems: function(newItems) {
 

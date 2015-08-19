@@ -103,6 +103,18 @@ class ItemController extends BaseController
     }
 
     /**
+     * Returns all of the user's items.
+     * @param  Request $request
+     * @return json           The response direct from the Pocket API
+     */
+    public function getAllItems(Request $request)
+    {
+        return $this->sendApiRequest('get', [
+            'access_token' => $request->session()->get('access_token'),
+            'detailType' => 'simple']);
+    }
+
+    /**
      * Logs the user out by clearing the session.
      * @param  Request $request
      */

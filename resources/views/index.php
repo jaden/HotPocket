@@ -138,6 +138,17 @@
                             v-on="click: getItems(this.count, this.current_offset + this.count) ">Next &gt;&gt;</button>
                 </div>
             </div>
+
+            <div class="row">
+                <div class="col-md-4 col-xs-6 col-md-offset-4">
+                    <div class="text-center">
+
+                        <button class="btn"
+                                v-on="click: getItemsCount"
+                                title="This could take a while...">Get Total Items Count</button>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 

@@ -22,5 +22,6 @@ $app->get('/auth/callback', 'ItemController@handleAuthCallback');
 $app->get('/auth/user', 'ItemController@getUsername');
 $app->get('/auth/logout', 'ItemController@logout');
 
+$app->get('/items/all', 'ItemController@getAllItems');
 $app->post('/items', 'ItemController@retrieveItems');
 $app->post('/item/{item_id}/{action}', 'ItemController@performAction');
