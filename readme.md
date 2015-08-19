@@ -4,14 +4,17 @@ Simple client to the [Pocket API](http://getpocket.com/developer/docs/getstarted
 
 Built with [Lumen](http://lumen.laravel.com/) and [Vuejs](http://vuejs.org/).
 
-## To deploy
-Populate .env appropriately (see .env.example)
+## To install
 
-Git push changes to bitbucket repo
+1. Checkout repository
 
-Add public SSH key of user to bitbucket as a deployment key
+2. Populate .env appropriately (see .env.example)
 
-git clone the bitbucket repo
+3. npm install
+
+4. composer install
+
+5. gulp
 
 ## Requirements
 

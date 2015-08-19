@@ -4,9 +4,10 @@ Vue.use(require('vue-resource'));
 var moment    = require('moment');
 var URL       = require('url-parse');
 var nprogress = require('nprogress');
+var cache     = require('./local_storage');
 
-var ITEMS_CACHE_KEY         = 'pocket-items';
-var USERNAME_CACHE_KEY      = 'pocket-username';
+var ITEMS_CACHE_KEY    = 'pocket-items';
+var USERNAME_CACHE_KEY = 'pocket-username';
 
 new Vue({
 	el: '#pocketApp',
@@ -20,13 +21,13 @@ new Vue({
 
 	created: function () {
 
-		this.username = this.cacheGetString(USERNAME_CACHE_KEY);
+		this.username = cache.getString(USERNAME_CACHE_KEY);
 
 		if (this.username) {
 
 			// Populate items list from local storage before retrieving updated list.
-			if (this.cacheKeyExists(ITEMS_CACHE_KEY)) {
-				this.items = this.cacheGetJson(ITEMS_CACHE_KEY);
+			if (cache.keyExists(ITEMS_CACHE_KEY)) {
+				this.items = cache.getJson(ITEMS_CACHE_KEY);
 			}
 
 			this.getItems(this.count, 0);
@@ -63,32 +64,10 @@ new Vue({
 
 				this.username = data.username;
 
-				this.cacheStore(USERNAME_CACHE_KEY, this.username);
+				cache.store(USERNAME_CACHE_KEY, this.username);
 
 				this.getItems(this.count, 0);
 
-			});
-		},
-
-		doAction: function(action, item_id) {
-
-			// Remove item from the list immediately, then make POST call
-			this.items.$delete(item_id);
-
-			this.startProgress();
-
-			this.$http.post('/item/' + item_id + '/' + action, function(data, status, request) {
-
-				this.endProgress();
-
-				// Get the next page of items if there aren't any left.
-				if (this.itemsKeys.length === 0) {
-					this.getItems(this.count, 0);
-				}
-
-			}.bind(this)).error(function (data, status, request) {
-				this.endProgress();
-				alert('An error occurred');
 			});
 		},
 
@@ -125,6 +104,28 @@ new Vue({
 			this.addItems(newItems);
 		},
 
+		doAction: function(action, item_id) {
+
+			// Remove item from the list immediately, then make POST call
+			this.items.$delete(item_id);
+
+			this.startProgress();
+
+			this.$http.post('/item/' + item_id + '/' + action, function(data, status, request) {
+
+				this.endProgress();
+
+				// Get the next page of items if there aren't any left.
+				if (this.itemsKeys.length === 0) {
+					this.getItems(this.count, 0);
+				}
+
+			}.bind(this)).error(function (data, status, request) {
+				this.endProgress();
+				alert('An error occurred');
+			});
+		},
+
 		// postData = object with the token, count and offset
 		// callback = function that takes this and an object of items
 		sendPostRequest: function(postData, callback) {
@@ -147,13 +148,15 @@ new Vue({
 
 				// Only cache the first page of items.
 				if (this.current_offset === 0) {
-					this.cacheStore(ITEMS_CACHE_KEY, data.list);
+					cache.store(ITEMS_CACHE_KEY, data.list);
 				}
 
 			}.bind(this)).error(function (data, status, request) {
+
 				this.endProgress();
 				this.logout();
 				alert("Error from server: " + data);
+
 			}.bind(this));
 		},
 
@@ -165,43 +168,11 @@ new Vue({
 
 			this.$http.get('/auth/logout');
 
-			this.cacheRemove(ITEMS_CACHE_KEY);
-			this.cacheRemove(USERNAME_CACHE_KEY);
+			cache.remove(ITEMS_CACHE_KEY);
+			cache.remove(USERNAME_CACHE_KEY);
 
 			this.username = '';
 			this.current_offset = 0;
-		},
-
-		cacheKeyExists: function(key) {
-			return localStorage.hasOwnProperty(key);
-		},
-
-		cacheStore: function(key, value) {
-			if (typeof value === 'object') {
-				value = JSON.stringify(value);
-			}
-
-			localStorage.setItem(key, value);
-		},
-
-		cacheGetString: function(key) {
-			if (! this.cacheKeyExists(key)) {
-				return '';
-			}
-
-			return localStorage.getItem(key);
-		},
-
-		cacheGetJson: function(key) {
-			if (! this.cacheKeyExists(key) || localStorage.getItem(key) === 'undefined') {
-				return {};
-			}
-
-			return JSON.parse(localStorage.getItem(key));
-		},
-
-		cacheRemove: function(key) {
-			localStorage.removeItem(key);
 		},
 
 		startProgress: function () {

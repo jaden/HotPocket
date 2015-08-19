@@ -15,13 +15,10 @@ class ItemController extends BaseController
      */
     public function retrieveItems(Request $request)
     {
-    	$count = $request->input('count', 10);
-    	$offset = $request->input('offset', 0);
-
         return $this->sendApiRequest('get', [
             'access_token' => $request->session()->get('access_token'),
-            'count' => $count,
-            'offset' => $offset]);
+            'count' => $request->input('count', 10),
+            'offset' => $request->input('offset', 0)]);
     }
 
     /**
@@ -32,14 +29,14 @@ class ItemController extends BaseController
      */
     public function performAction(Request $request, $item_id, $action)
     {
-    	if ($action != 'archive' && $action != 'delete') {
-    		return "Invalid action " . $action;
-    	}
+        if ($action != 'archive' && $action != 'delete') {
+            return "Invalid action: " . $action;
+        }
 
-    	// Pocket API expects a JSON string in the value of actions. Guzzle url encodes it for us.
-    	return $this->sendApiRequest('send', [
-                'access_token' => $request->session()->get('access_token'),
-                'actions' => '[{"action":"' . $action . '","item_id":' . $item_id . '}]'
+        // Pocket API expects a JSON string in the value of actions. Guzzle url encodes it for us.
+        return $this->sendApiRequest('send', [
+            'access_token' => $request->session()->get('access_token'),
+            'actions' => '[{"action":"' . $action . '","item_id":' . $item_id . '}]'
             ]);
     }
 
@@ -62,13 +59,15 @@ class ItemController extends BaseController
 
         $request->session()->put('request_token', $request_token);
 
-        // TODO Probably a more elegant way to build up this URL
-        // with Symfony components
+        $query_vars = [
+            'request_token' => $request_token,
+            'redirect_uri'  => $redirect_uri
+        ];
+
         return response()->json([
             'redirect_to' => 'https://getpocket.com/auth/authorize?' .
-                "request_token=$request_token" .
-                "&redirect_uri=$redirect_uri"]
-            );
+            http_build_query($query_vars)
+        ]);
     }
 
     /**
@@ -78,7 +77,8 @@ class ItemController extends BaseController
      */
     public function handleAuthCallback(Request $request)
     {
-        $response = $this->sendApiRequest('oauth/authorize', ['code' => $request->session()->get('request_token')]);
+        $response = $this->sendApiRequest('oauth/authorize',
+            ['code' => $request->session()->get('request_token')]);
 
         if ($this->isErrorResponse($response)) {
             return redirect('/');
@@ -86,11 +86,8 @@ class ItemController extends BaseController
 
         $responseObj = json_decode($response->getContent());
 
-        $access_token = $responseObj->access_token;
-        $username = $responseObj->username;
-
-        $request->session()->put('access_token', $access_token);
-        $request->session()->put('username', $username);
+        $request->session()->put('access_token', $responseObj->access_token);
+        $request->session()->put('username', $responseObj->username);
 
         return redirect('/');
     }
@@ -112,6 +109,7 @@ class ItemController extends BaseController
     public function logout(Request $request)
     {
         $request->session()->flush();
+
         return response()->json([]);
     }
 
@@ -130,7 +128,7 @@ class ItemController extends BaseController
      */
     private function sendApiRequest($operation, $extraParameters = [])
     {
-    	$client = new Client();
+        $client = new Client();
 
         $response = $client->post($_ENV['POCKET_API_URL'] . $operation, [
             // NOTE: Leave this as form_params, not json. That's how the Pocket API wants it.
