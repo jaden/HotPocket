@@ -30,7 +30,7 @@ gulp.task('browserify', ['clean'], function() {
 	});
 
     return b.bundle()
-    	.pipe(source('bundle.min.js')) // This file won't exist (yet)
+    	.pipe(source('bundle.min.js')) // This file doesn't exist (yet)
     	.pipe(buffer())
     	.pipe(sourcemaps.init({loadMaps: true}))
 	        .pipe(uglify())
