@@ -74,7 +74,8 @@
               <li class="dropdown">
               <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">{{ username }} <span class="caret"></span></a>
                 <ul class="dropdown-menu">
-                    <li><a href="" v-on="click: logout">Logout</a></li>
+                    <li><a class="clickable" v-on="click: getItemsCount" title="This can take a while...">Count All Items</button>
+                    <li><a class="clickable" v-on="click: logout">Logout</a></li>
                 </ul>
               </li>
             </ul>
@@ -125,7 +126,7 @@
                 <div class="col-md-4 col-xs-4">
                     <button v-if="this.current_offset > 0"
                             class="pull-left btn btn-primary"
-                            v-on="click: getItems(this.count, this.current_offset - this.count) ">&lt;&lt; Prev</button>
+                            v-on="click: getItems(this.count, this.current_offset - this.count) ">&lt; Prev</button>
                 </div>
 
                 <div class="col-md-4 col-xs-4">
@@ -135,18 +136,7 @@
                 <div class="col-md-4 col-xs-4">
 
                     <button class="pull-right btn btn-primary"
-                            v-on="click: getItems(this.count, this.current_offset + this.count) ">Next &gt;&gt;</button>
-                </div>
-            </div>
-
-            <div class="row">
-                <div class="col-md-4 col-xs-6 col-md-offset-4">
-                    <div class="text-center">
-
-                        <button class="btn"
-                                v-on="click: getItemsCount"
-                                title="This could take a while...">Get Total Items Count</button>
-                    </div>
+                            v-on="click: getItems(this.count, this.current_offset + this.count) ">Next &gt;</button>
                 </div>
             </div>
         </div>

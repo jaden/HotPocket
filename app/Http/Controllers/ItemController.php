@@ -30,13 +30,17 @@ class ItemController extends BaseController
     public function performAction(Request $request, $item_id, $action)
     {
         if ($action != 'archive' && $action != 'delete') {
-            return "Invalid action: " . $action;
+            return "Invalid action: {$action}";
         }
 
         // Pocket API expects a JSON string in the value of actions. Guzzle url encodes it for us.
         return $this->sendApiRequest('send', [
             'access_token' => $request->session()->get('access_token'),
-            'actions' => '[{"action":"' . $action . '","item_id":' . $item_id . '}]'
+            'actions' => json_encode(
+                [[
+                    "action"  => $action,
+                    "item_id" => $item_id
+                ]])
             ]);
     }
 
@@ -49,7 +53,8 @@ class ItemController extends BaseController
     {
         $redirect_uri = $request->root() . '/auth/callback';
 
-        $response = $this->sendApiRequest('oauth/request', ['redirect_uri' => $redirect_uri]);
+        $response = $this->sendApiRequest('oauth/request',
+            ['redirect_uri' => $redirect_uri]);
 
         if ($this->isErrorResponse($response)) {
             return view('error')->withErrorMessage($response->content());
@@ -65,8 +70,8 @@ class ItemController extends BaseController
         ];
 
         return response()->json([
-            'redirect_to' => 'https://getpocket.com/auth/authorize?' .
-            http_build_query($query_vars)
+            'redirect_to' =>
+                'https://getpocket.com/auth/authorize?' . http_build_query($query_vars)
         ]);
     }
 

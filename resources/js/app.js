@@ -172,11 +172,7 @@ new Vue({
 			}.bind(this));
 		},
 
-		logout: function(e) {
-
-			if (e) {
-				e.preventDefault();
-			}
+		logout: function() {
 
 			this.$http.get('/auth/logout');
 
