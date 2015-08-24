@@ -1,5 +1,8 @@
 ## Pocket API Client
 
+# Demo site
+[HotPocket](http://pocket.snapmagic.com)
+
 Simple client to the [Pocket API](http://getpocket.com/developer/docs/getstarted/web) that makes it easier to read and archive or delete links quickly.
 
 Built with [Lumen](http://lumen.laravel.com/) and [Vuejs](http://vuejs.org/).
