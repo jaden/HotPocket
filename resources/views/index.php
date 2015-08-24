@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>HotPocket</title>
-    <?php include(base_path() . '/.timestamp.php'); // Relative to public/ ?>
+    <?php include(base_path() . '/.timestamp.php'); ?>
     <link rel="stylesheet" type="text/css" href="/css/bundle-<?php echo $timestamp; ?>.min.css">
     <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro' rel='stylesheet' type='text/css'>
     <style>
