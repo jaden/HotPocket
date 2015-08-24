@@ -7,9 +7,19 @@ class ExampleTest extends TestCase
      *
      * @return void
      */
-    public function testLoggedOutUser()
+    public function test_logged_out_user()
     {
         $this->visit('/')
              ->see('Log in with Pocket');
     }
+
+    public function test_logged_in_user()
+    {
+        $this->withSession(['username' => 'testuser'])
+             ->visit('/')
+             ->see('Logout');
+    }
+
+    // TODO Mock Pocket API
+
 }
