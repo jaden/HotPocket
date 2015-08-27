@@ -17,10 +17,10 @@ var fs         = require('fs');
 
 gulp.task('clean', function(callback) {
 	del([
-  		'public/css/bundle-*.min.css',
-  		'public/js/bundle-*.min.js',
-  	], callback);
-});
+		'public/css/bundle-*.min.css',
+		'public/js/bundle-*.min.js',
+		], callback);
+	});
 
 gulp.task('browserify', ['clean'], function() {
 
@@ -29,21 +29,21 @@ gulp.task('browserify', ['clean'], function() {
 		debug: false
 	});
 
-    return b.bundle()
-    	.pipe(source('bundle.min.js')) // This file doesn't exist (yet)
-    	.pipe(buffer())
-    	.pipe(sourcemaps.init({loadMaps: true}))
-	        .pipe(uglify())
-	        .on('error', gutil.log)
-    	.pipe(sourcemaps.write('./'))
-    	.pipe(gulp.dest('./public/js/'));
+	return b.bundle()
+		.pipe(source('bundle.min.js')) // This file doesn't exist (yet)
+		.pipe(buffer())
+		.pipe(sourcemaps.init({loadMaps: true}))
+		.pipe(uglify())
+		.on('error', gutil.log)
+		.pipe(sourcemaps.write('./'))
+		.pipe(gulp.dest('./public/js/'));
 });
 
 gulp.task('styles', ['clean'], function() {
 	return gulp.src([
-			'public/css/bootstrap/bootstrap.min.css',
-			'node_modules/nprogress/nprogress.css'],
-			{ base: '.'})
+		'resources/css/bootstrap/bootstrap.min.css',
+		'node_modules/nprogress/nprogress.css'],
+		{ base: '.'})
 
 		.pipe(minify_css())
 		.pipe(concat('bundle.min.css'))
@@ -55,24 +55,24 @@ gulp.task('cache-bust', ['browserify', 'styles'], function() {
 	var timestamp = new Date().getTime();
 
 	gulp.src("./public/css/bundle.min.css")
-  		.pipe(rename("./public/css/bundle-" + timestamp + ".min.css"))
-  		.pipe(gulp.dest("."));
+		.pipe(rename("./public/css/bundle-" + timestamp + ".min.css"))
+		.pipe(gulp.dest("."));
 
 	gulp.src("./public/js/bundle.min.js")
-  		.pipe(rename("./public/js/bundle-" + timestamp + ".min.js"))
-  		.pipe(gulp.dest("."));
+		.pipe(rename("./public/js/bundle-" + timestamp + ".min.js"))
+		.pipe(gulp.dest("."));
 
-  	fs.writeFileSync('.timestamp.php', "<?php $timestamp = '" + timestamp + "';");
+	fs.writeFileSync('.timestamp.php', "<?php $timestamp = '" + timestamp + "';");
 });
-
-gulp.task('default', ['cache-bust']);
 
 gulp.task('lint', function() {
 	return gulp.src('./resources/js/*.js')
-	    .pipe(jshint())
-	    .pipe(jshint.reporter('default'));
+		.pipe(jshint())
+		.pipe(jshint.reporter('default'));
 });
 
 gulp.task('watch', ['cache-bust'], function() {
-    gulp.watch('./resources/js/**/*.js', ['cache-bust']);
+	gulp.watch('./resources/js/**/*.js', ['cache-bust']);
 });
+
+gulp.task('default', ['cache-bust']);

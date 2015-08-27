@@ -389,11 +389,12 @@
     "responsive-utilities.less",
     "navs.less",
     "navbar.less",
-    "list-group.less",
+    "jumbotron.less",
+    "panels.less",
     "dropdowns.less"
   ],
   "js": [
     "dropdown.js"
   ],
-  "customizerUrl": "http://getbootstrap.com/customize/?id=a4a4c3f291d4040a4a83"
+  "customizerUrl": "http://getbootstrap.com/customize/?id=da20624b312b160eeaf8"
 }
