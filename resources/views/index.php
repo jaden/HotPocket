@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>HotPocket</title>
     <?php include(base_path() . '/.timestamp.php'); ?>
-    <link rel="stylesheet" type="text/css" href="/css/bundle-<?php echo $timestamp; ?>.min.css">
+    <link rel="stylesheet" type="text/css" href="/css/bundle<?php echo strlen($timestamp) > 0 ? '-' . $timestamp : ''; ?>.min.css">
     <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro' rel='stylesheet' type='text/css'>
     <style>
         body {
@@ -181,7 +181,7 @@
         </div>
     </div>
 
-    <script async src="/js/bundle-<?php echo $timestamp; ?>.min.js"></script>
+    <script async src="/js/bundle<?php echo strlen($timestamp) > 0 ? '-' . $timestamp : ''; ?>.min.js"></script>
     <script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
     <script async src="/js/bootstrap.min.js"></script>
 </body>

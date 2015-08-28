@@ -134,7 +134,7 @@ new Vue({
 
 			}.bind(this)).error(function (data, status, request) {
 				this.endProgress();
-				alert('An error occurred');
+				alert('An error occurred - the item may not have been archived or deleted.');
 			});
 		},
 
@@ -150,9 +150,9 @@ new Vue({
 
 				if (data.list === null || typeof data.list === 'undefined') {
 					window.data = data;
-					console.log('The request was successful, but there were no items');
+					console.log('The request was successful, but there were no items. Logging out.');
 					console.log(data);
-					alert('There was an error retrieving the items');
+					this.logout();
 					return;
 				}
 

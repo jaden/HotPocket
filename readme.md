@@ -17,12 +17,12 @@ Built with [Lumen](http://lumen.laravel.com/) and [Vuejs](http://vuejs.org/).
 
 4. composer install
 
-5. gulp
+5. gulp --production
 
 ## Requirements
 
 * PHP 5.6+
 * Redis
 
-## To build
+## To build for development
     gulp

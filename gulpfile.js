@@ -6,14 +6,18 @@ var source     = require('vinyl-source-stream');
 var buffer     = require('vinyl-buffer');
 var uglify     = require('gulp-uglify');
 var sourcemaps = require('gulp-sourcemaps');
-var gutil      = require('gulp-util');
+var util       = require('gulp-util');
 var minify_css = require('gulp-minify-css');
 var concat     = require('gulp-concat');
 var jshint     = require('gulp-jshint');
 var replace    = require('gulp-replace');
 var rename     = require('gulp-rename');
+var gulpif     = require('gulp-if');
 var del        = require('del');
 var fs         = require('fs');
+
+// Set to true if run with --production flag, otherwise false.
+var production = !! util.env.production;
 
 gulp.task('clean', function(callback) {
 	del([
@@ -32,26 +36,32 @@ gulp.task('browserify', ['clean'], function() {
 	return b.bundle()
 		.pipe(source('bundle.min.js')) // This file doesn't exist (yet)
 		.pipe(buffer())
-		.pipe(sourcemaps.init({loadMaps: true}))
-		.pipe(uglify())
-		.on('error', gutil.log)
-		.pipe(sourcemaps.write('./'))
+		.pipe(gulpif(production, sourcemaps.init({loadMaps: true})))
+		.pipe(gulpif(production, uglify()))
+		.on('error', util.log)
+		.pipe(gulpif(production, sourcemaps.write('./')))
 		.pipe(gulp.dest('./public/js/'));
 });
 
 gulp.task('styles', ['clean'], function() {
-	return gulp.src([
-		'resources/css/bootstrap/bootstrap.min.css',
-		'node_modules/nprogress/nprogress.css'],
-		{ base: '.'})
+	return gulp.src(
+		[
+			'resources/css/bootstrap/bootstrap.min.css',
+			'node_modules/nprogress/nprogress.css'
+		], { base: '.'})
 
-		.pipe(minify_css())
+		.pipe(gulpif(production, minify_css()))
 		.pipe(concat('bundle.min.css'))
 		.pipe(gulp.dest('public/css'));
 });
 
 // Only runs after js and styles have been generated
 gulp.task('cache-bust', ['browserify', 'styles'], function() {
+	if (! production) {
+		fs.writeFileSync('.timestamp.php', "<?php $timestamp = '';");
+		return;
+	}
+
 	var timestamp = new Date().getTime();
 
 	gulp.src("./public/css/bundle.min.css")
