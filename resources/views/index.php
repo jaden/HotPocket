@@ -7,7 +7,7 @@
     <meta property="og:title" content="HotPocket" />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="http://pocket.snapmagic.com" />
-    <meta property="og:image" content="http://pocket.snapmagic.com/images/pocket-thumbnail.png" />
+    <meta property="og:image" content="http://pocket.snapmagic.com/images/hotpocket-thumbnail.png" />
 
     <title>HotPocket</title>
     <?php include(base_path() . '/.timestamp.php'); ?>
