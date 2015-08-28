@@ -3,6 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <meta property="og:title" content="HotPocket" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="http://pocket.snapmagic.com" />
+    <meta property="og:image" content="http://pocket.snapmagic.com/images/pocket-thumbnail.png" />
+
     <title>HotPocket</title>
     <?php include(base_path() . '/.timestamp.php'); ?>
     <link rel="stylesheet" type="text/css" href="/css/bundle<?php echo strlen($timestamp) > 0 ? '-' . $timestamp : ''; ?>.min.css">
