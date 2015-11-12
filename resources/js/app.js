@@ -10,223 +10,223 @@ var ITEMS_CACHE_KEY    = 'pocket-items';
 var USERNAME_CACHE_KEY = 'pocket-username';
 
 new Vue({
-	el: '#pocketApp',
+    el: '#pocketApp',
 
-	data: {
-		username      : '',
-		items         : {},
-		count         : 8,
-		current_offset: 0,
-	},
+    data: {
+        username      : '',
+        items         : {},
+        count         : 8,
+        current_offset: 0,
+    },
 
-	created: function () {
+    created: function () {
 
-		this.username = cache.getString(USERNAME_CACHE_KEY);
+        this.username = cache.getString(USERNAME_CACHE_KEY);
 
-		if (this.username) {
+        if (this.username) {
 
-			// Populate items list from local storage before retrieving updated list.
-			if (cache.keyExists(ITEMS_CACHE_KEY)) {
-				this.items = cache.getJson(ITEMS_CACHE_KEY);
-			}
+            // Populate items list from local storage before retrieving updated list.
+            if (cache.keyExists(ITEMS_CACHE_KEY)) {
+                this.items = cache.getJson(ITEMS_CACHE_KEY);
+            }
 
-			this.getItems(this.count, 0);
+            this.getItems(this.count, 0);
 
-		} else {
-			this.getItemsIfLoggedIn();
-		}
-	},
+        } else {
+            this.getItemsIfLoggedIn();
+        }
+    },
 
-	methods: {
+    methods: {
 
-		authorize: function() {
+        authorize: function() {
 
-			this.startProgress();
+            this.startProgress();
 
-			this.$http.get('/auth/request', function(data, status, request) {
+            this.$http.get('/auth/request', function(data, status, request) {
 
-				this.endProgress();
+                this.endProgress();
 
-				if (data.redirect_to) {
-					window.location = data.redirect_to;
-				}
+                if (data.redirect_to) {
+                    window.location = data.redirect_to;
+                }
 
-			});
-		},
+            });
+        },
 
-		getItemsIfLoggedIn: function() {
+        getItemsIfLoggedIn: function() {
 
-			this.$http.get('/auth/user', function(data, status, request) {
+            this.$http.get('/auth/user', function(data, status, request) {
 
-				if (! data.username) {
-					return;
-				}
+                if (! data.username) {
+                    return;
+                }
 
-				this.username = data.username;
+                this.username = data.username;
 
-				cache.store(USERNAME_CACHE_KEY, this.username);
+                cache.store(USERNAME_CACHE_KEY, this.username);
 
-				this.getItems(this.count, 0);
+                this.getItems(this.count, 0);
 
-			});
-		},
+            });
+        },
 
-		// Replaces the existing list of items.
-		getItems: function(num, offset) {
+        // Replaces the existing list of items.
+        getItems: function(num, offset) {
 
-			var postData = {
-				count : num,
-				offset: offset
-			};
+            var postData = {
+                count : num,
+                offset: offset
+            };
 
-			this.current_offset = offset;
+            this.current_offset = offset;
 
-			this.sendPostRequest(postData, this.replaceItems);
-		},
+            this.sendPostRequest(postData, this.replaceItems);
+        },
 
-		getItemsCount: function() {
+        getItemsCount: function() {
 
-			this.startProgress();
+            this.startProgress();
 
-			this.$http.get('/items/all', function(data, status, request) {
+            this.$http.get('/items/all', function(data, status, request) {
 
-				this.endProgress();
+                this.endProgress();
 
-				alert('You currently have ' + Object.keys(data.list).length + ' items');
-			});
-		},
+                alert('You currently have ' + Object.keys(data.list).length + ' items');
+            });
+        },
 
-		// Callback function for sendPostRequest
-		addItems: function(newItems) {
+        // Callback function for sendPostRequest
+        addItems: function(newItems) {
 
-			// Add the downloaded items to the items list.
-			Object.keys(newItems).forEach(function(key) {
-				Vue.set(this.items, key, newItems[key]);
-			}.bind(this));
-		},
+            // Add the downloaded items to the items list.
+            Object.keys(newItems).forEach(function(key) {
+                Vue.set(this.items, key, newItems[key]);
+            }.bind(this));
+        },
 
-		// Callback function for sendPostRequest
-		replaceItems: function(newItems) {
+        // Callback function for sendPostRequest
+        replaceItems: function(newItems) {
 
-			// Remove all existing items.
-			this.itemsKeys.forEach(function(key) {
-				Vue.delete(this.items, key);
-			}.bind(this));
+            // Remove all existing items.
+            this.itemsKeys.forEach(function(key) {
+                Vue.delete(this.items, key);
+            }.bind(this));
 
-			this.addItems(newItems);
-		},
+            this.addItems(newItems);
+        },
 
-		doAction: function(action, item_id) {
+        doAction: function(action, item_id) {
 
-			// Remove item from the list immediately, then make POST call
-			Vue.delete(this.items, item_id);
+            // Remove item from the list immediately, then make POST call
+            Vue.delete(this.items, item_id);
 
-			this.startProgress();
+            this.startProgress();
 
-			this.$http.post('/item/' + item_id + '/' + action, function(data, status, request) {
+            this.$http.post('/item/' + item_id + '/' + action, function(data, status, request) {
 
-				this.endProgress();
+                this.endProgress();
 
-				// Get the next page of items if there aren't any left.
-				if (this.itemsKeys.length === 0) {
-					this.getItems(this.count, 0);
-				}
+                // Get the next page of items if there aren't any left.
+                if (this.itemsKeys.length === 0) {
+                    this.getItems(this.count, 0);
+                }
 
-			}.bind(this))
+            }.bind(this))
 
-			.error(function (data, status, request) {
-				this.endProgress();
-				alert('An error occurred - the item may not have been archived or deleted.');
-			});
-		},
+            .error(function (data, status, request) {
+                this.endProgress();
+                alert('An error occurred - the item may not have been archived or deleted.');
+            });
+        },
 
-		// postData = object with the token, count and offset
-		// callback = function that takes this and an object of items
-		sendPostRequest: function(postData, callback) {
+        // postData = object with the token, count and offset
+        // callback = function that takes this and an object of items
+        sendPostRequest: function(postData, callback) {
 
-			this.startProgress();
+            this.startProgress();
 
-			this.$http.post('/items', postData, function(data, status, request) {
+            this.$http.post('/items', postData, function(data, status, request) {
 
-				this.endProgress();
+                this.endProgress();
 
-				if (data.list === null || typeof data.list === 'undefined') {
-					window.data = data;
-					console.log('The request was successful, but there were no items. Logging out.');
-					console.log(data);
-					this.logout();
-					return;
-				}
+                if (data.list === null || typeof data.list === 'undefined') {
+                    window.data = data;
+                    console.log('The request was successful, but there were no items. Logging out.');
+                    console.log(data);
+                    this.logout();
+                    return;
+                }
 
-				callback(data.list);
+                callback(data.list);
 
-				// Only cache the first page of items.
-				if (this.current_offset === 0) {
-					cache.store(ITEMS_CACHE_KEY, data.list);
-				}
+                // Only cache the first page of items.
+                if (this.current_offset === 0) {
+                    cache.store(ITEMS_CACHE_KEY, data.list);
+                }
 
-			}.bind(this))
+            }.bind(this))
 
-			.error(function (data, status, request) {
-				this.endProgress();
-				this.logout();
+            .error(function (data, status, request) {
+                this.endProgress();
+                this.logout();
 
-			}.bind(this));
-		},
+            }.bind(this));
+        },
 
-		logout: function() {
+        logout: function() {
 
-			this.$http.get('/auth/logout');
+            this.$http.get('/auth/logout');
 
-			cache.remove(ITEMS_CACHE_KEY);
-			cache.remove(USERNAME_CACHE_KEY);
+            cache.remove(ITEMS_CACHE_KEY);
+            cache.remove(USERNAME_CACHE_KEY);
 
-			this.username = '';
-			this.current_offset = 0;
-		},
+            this.username = '';
+            this.current_offset = 0;
+        },
 
-		startProgress: function () {
-			nprogress.start();
-		},
+        startProgress: function () {
+            nprogress.start();
+        },
 
-		endProgress: function() {
-			nprogress.done();
-		},
-	},
+        endProgress: function() {
+            nprogress.done();
+        },
+    },
 
-	filters: {
+    filters: {
 
-		formatDate: function(date) {
-			// return moment.unix(date).format('ddd, DD MMM YYYY HH:mm:ss');
-			return moment.unix(date).fromNow();
-		},
+        formatDate: function(date) {
+            // return moment.unix(date).format('ddd, DD MMM YYYY HH:mm:ss');
+            return moment.unix(date).fromNow();
+        },
 
-		baseUrl: function(url) {
-			var domain = new URL(url).hostname;
-			if (domain.substr(0, 4) === 'www.') {
-				return domain.substr(4);
-			}
-			return domain;
-		},
+        baseUrl: function(url) {
+            var domain = new URL(url).hostname;
+            if (domain.substr(0, 4) === 'www.') {
+                return domain.substr(4);
+            }
+            return domain;
+        },
 
-		// If the value is undefined or empty, replace it with a default value.
-		getDefault: function(string, defaultValue) {
-			if (typeof string === 'undefined' || string.length === 0) {
-				return defaultValue;
-			}
+        // If the value is undefined or empty, replace it with a default value.
+        getDefault: function(string, defaultValue) {
+            if (typeof string === 'undefined' || string.length === 0) {
+                return defaultValue;
+            }
 
-			return string;
-		}
-	},
+            return string;
+        }
+    },
 
-	computed: {
+    computed: {
 
-		itemsKeys: function() {
-			return Object.keys(this.items);
-		},
+        itemsKeys: function() {
+            return Object.keys(this.items);
+        },
 
-		currentPage: function() {
-			return (this.current_offset / this.count) + 1;
-		}
-	}
+        currentPage: function() {
+            return (this.current_offset / this.count) + 1;
+        }
+    }
 });
