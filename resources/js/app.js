@@ -121,6 +121,9 @@ new Vue({
             // Remove item from the list immediately, then make POST call
             Vue.delete(this.items, item_id);
 
+            // Update cache with new list
+            cache.store(ITEMS_CACHE_KEY, this.items);
+
             this.startProgress();
 
             this.$http.post('/item/' + item_id + '/' + action, function(data, status, request) {
