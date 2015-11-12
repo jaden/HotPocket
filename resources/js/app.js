@@ -13,9 +13,9 @@ new Vue({
 	el: '#pocketApp',
 
 	data: {
-		username: '',
-		items: {},
-		count: 8,
+		username      : '',
+		items         : {},
+		count         : 8,
 		current_offset: 0,
 	},
 
@@ -75,7 +75,7 @@ new Vue({
 		getItems: function(num, offset) {
 
 			var postData = {
-				count:  num,
+				count : num,
 				offset: offset
 			};
 
@@ -101,7 +101,7 @@ new Vue({
 
 			// Add the downloaded items to the items list.
 			Object.keys(newItems).forEach(function(key) {
-				this.items[key] = newItems[key];
+				Vue.set(this.items, key, newItems[key]);
 			}.bind(this));
 		},
 
@@ -132,7 +132,9 @@ new Vue({
 					this.getItems(this.count, 0);
 				}
 
-			}.bind(this)).error(function (data, status, request) {
+			}.bind(this))
+
+			.error(function (data, status, request) {
 				this.endProgress();
 				alert('An error occurred - the item may not have been archived or deleted.');
 			});
@@ -168,7 +170,6 @@ new Vue({
 			.error(function (data, status, request) {
 				this.endProgress();
 				this.logout();
-				alert("Error from server: " + data);
 
 			}.bind(this));
 		},
