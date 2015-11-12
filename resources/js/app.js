@@ -17,6 +17,7 @@ new Vue({
         items         : {},
         count         : 8,
         current_offset: 0,
+        total_items   : null,
     },
 
     created: function () {
@@ -92,8 +93,16 @@ new Vue({
 
                 this.endProgress();
 
-                alert('You currently have ' + Object.keys(data.list).length + ' items');
+                this.total_items = Object.keys(data.list).length;
             });
+        },
+
+        decrementTotalItemsCount: function() {
+            if (this.total_items === null) {
+                return;
+            }
+
+            this.total_items--;
         },
 
         // Callback function for sendPostRequest
@@ -120,6 +129,8 @@ new Vue({
 
             // Remove item from the list immediately, then make POST call
             Vue.delete(this.items, item_id);
+
+            this.decrementTotalItemsCount();
 
             // Update cache with new list
             cache.store(ITEMS_CACHE_KEY, this.items);

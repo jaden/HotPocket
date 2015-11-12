@@ -41,6 +41,12 @@
             display: none;
         }
 
+        #total_items {
+            margin-top: 12px;
+            font-size: 1.2em;
+            padding-right: 40px;
+        }
+
         .item_link {
             font-size: .9em;
         }
@@ -87,6 +93,7 @@
           </div>
           <div id="navbar" v-cloak v-show="username">
             <ul class="nav navbar-nav navbar-right">
+              <li id="total_items" v-show="total_items != null">Total items: {{ total_items }}</li>
               <li class="dropdown">
               <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">{{ username }} <span class="caret"></span></a>
                 <ul class="dropdown-menu">
