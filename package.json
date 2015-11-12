@@ -3,8 +3,8 @@
     "moment": "^2.10.6",
     "nprogress": "^0.2.0",
     "url-parse": "^1.0.2",
-    "vue": "^0.12.10",
-    "vue-resource": "^0.1.10"
+    "vue": "^1.0.7",
+    "vue-resource": "^0.1.17"
   },
   "devDependencies": {
     "browserify": "^10.2.6",

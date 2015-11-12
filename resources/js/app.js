@@ -75,8 +75,8 @@ new Vue({
 		getItems: function(num, offset) {
 
 			var postData = {
-				count:         num,
-				offset:        offset
+				count:  num,
+				offset: offset
 			};
 
 			this.current_offset = offset;
@@ -101,7 +101,7 @@ new Vue({
 
 			// Add the downloaded items to the items list.
 			Object.keys(newItems).forEach(function(key) {
-				this.items.$add(key, newItems[key]);
+				this.items[key] = newItems[key];
 			}.bind(this));
 		},
 
@@ -110,7 +110,7 @@ new Vue({
 
 			// Remove all existing items.
 			this.itemsKeys.forEach(function(key) {
-				this.items.$delete(key);
+				Vue.delete(this.items, key);
 			}.bind(this));
 
 			this.addItems(newItems);
@@ -119,7 +119,7 @@ new Vue({
 		doAction: function(action, item_id) {
 
 			// Remove item from the list immediately, then make POST call
-			this.items.$delete(item_id);
+			Vue.delete(this.items, item_id);
 
 			this.startProgress();
 
@@ -163,8 +163,9 @@ new Vue({
 					cache.store(ITEMS_CACHE_KEY, data.list);
 				}
 
-			}.bind(this)).error(function (data, status, request) {
+			}.bind(this))
 
+			.error(function (data, status, request) {
 				this.endProgress();
 				this.logout();
 				alert("Error from server: " + data);

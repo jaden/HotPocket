@@ -90,8 +90,8 @@
               <li class="dropdown">
               <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">{{ username }} <span class="caret"></span></a>
                 <ul class="dropdown-menu">
-                    <li><a class="clickable" v-on="click: getItemsCount" title="This can take a while...">Count All Items</button>
-                    <li><a class="clickable" v-on="click: logout">Logout</a></li>
+                    <li><a class="clickable" @click="getItemsCount" title="This can take a while...">Count All Items</button>
+                    <li><a class="clickable" @click="logout">Logout</a></li>
                 </ul>
               </li>
             </ul>
@@ -122,7 +122,7 @@
                 </div>
 
                 <p>
-                    <button class="btn btn-lg btn-primary" v-on="click: authorize">Log in with Pocket (Free)</button>
+                    <button class="btn btn-lg btn-primary" @click="authorize">Log in with Pocket (Free)</button>
                 </p>
             </div>
 
@@ -134,32 +134,32 @@
 
         <div id="items" v-cloak v-show="username">
             <ol class="list-group" style="margin-top: 30px">
-                <li v-repeat="items | orderBy 'time_added' -1" class="list-group-item">
-                    <strong style="font-size:1.3em">{{ resolved_title | getDefault '(No Title Found)' }}</strong>
+                <li v-for="item in items | orderBy 'time_added' -1" class="list-group-item">
+                    <strong style="font-size:1.3em">{{ item.resolved_title | getDefault '(No Title Found)' }}</strong>
                     <div>
                         <span class="item_link">
-                            <a style="color:#999;margin-right:10px" href="{{ resolved_url }}">{{ resolved_url | baseUrl }}</a>
-                            <em>{{ time_added | formatDate }}</em>
+                            <a style="color:#999;margin-right:10px" href="{{ item.resolved_url }}">{{ item.resolved_url | baseUrl }}</a>
+                            <em>{{ item.time_added | formatDate }}</em>
                         </span>
                     </div>
 
                     <div class="action_icons">
                         <a class="action_icon"
-                           href="{{ resolved_url }}"
+                           href="{{ item.resolved_url }}"
                            target="_blank"
-                           v-on="click: doAction('delete', item_id)"
+                           @click="doAction('delete', item.item_id)"
                            ><img src="/images/open_and_delete.png"
                                  title="Open and Delete"></a>
 
                         <a class="action_icon"
-                           href="{{ resolved_url }}"
+                           href="{{ item.resolved_url }}"
                            target="_blank"
-                           v-on="click: doAction('archive', item_id)"
+                           @click="doAction('archive', item.item_id)"
                            ><img src="/images/open_and_archive.png"
                                  title="Open and Archive"></a>
 
                         <a class="action_icon clickable"
-                           v-on="click: doAction('delete', item_id)"
+                           @click="doAction('delete', item.item_id)"
                            ><img src="/images/delete.png"
                                  title="Delete without opening"></a>
                     </div>
@@ -171,7 +171,7 @@
                 <div class="col-md-4 col-xs-4">
                     <button v-if="this.current_offset > 0"
                             class="pull-left btn btn-primary"
-                            v-on="click: getItems(this.count, this.current_offset - this.count) ">&lt; Prev</button>
+                            @click="getItems(this.count, this.current_offset - this.count)">&lt; Prev</button>
                 </div>
 
                 <div class="col-md-4 col-xs-4">
@@ -181,7 +181,7 @@
                 <div class="col-md-4 col-xs-4">
 
                     <button class="pull-right btn btn-primary"
-                            v-on="click: getItems(this.count, this.current_offset + this.count) ">Next &gt;</button>
+                            @click="getItems(this.count, this.current_offset + this.count)">Next &gt;</button>
                 </div>
             </div>
         </div>
