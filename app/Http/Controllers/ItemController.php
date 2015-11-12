@@ -17,8 +17,9 @@ class ItemController extends BaseController
     {
         return $this->sendApiRequest('get', [
             'access_token' => $request->session()->get('access_token'),
-            'count' => $request->input('count', 10),
-            'offset' => $request->input('offset', 0)]);
+            'count'        => $request->input('count', 10),
+            'offset'       => $request->input('offset', 0)
+        ]);
     }
 
     /**
@@ -36,7 +37,7 @@ class ItemController extends BaseController
         // Pocket API expects a JSON string in the value of actions. Guzzle url encodes it for us.
         return $this->sendApiRequest('send', [
             'access_token' => $request->session()->get('access_token'),
-            'actions' => json_encode(
+            'actions'      => json_encode(
                 [[
                     "action"  => $action,
                     "item_id" => $item_id
@@ -116,7 +117,7 @@ class ItemController extends BaseController
     {
         return $this->sendApiRequest('get', [
             'access_token' => $request->session()->get('access_token'),
-            'detailType' => 'simple']);
+            'detailType'   => 'simple']);
     }
 
     /**
@@ -153,7 +154,10 @@ class ItemController extends BaseController
                 ['consumer_key' => $_ENV['POCKET_CONSUMER_KEY']],
                 $extraParameters),
 
-            'headers' => ['X-Accept' => 'application/json'],
+            'headers' =>
+            [
+                'X-Accept' => 'application/json'
+            ],
             'http_errors' => false
         ]);
 
