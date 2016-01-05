@@ -164,7 +164,7 @@ new Vue({
 
                 this.endProgress();
 
-                if (data.list === null || typeof data.list === 'undefined') {
+                if (data.list === null || data.list === undefined) {
                     window.data = data;
                     console.log('The request was successful, but there were no items. Logging out.');
                     console.log(data);
@@ -211,8 +211,36 @@ new Vue({
     filters: {
 
         formatDate: function(date) {
-            // return moment.unix(date).format('ddd, DD MMM YYYY HH:mm:ss');
             return moment.unix(date).fromNow();
+        },
+
+        // Get title by order of preference. If it can't be found, try URL
+        resolveTitle: function(item) {
+            if (item.resolved_title) {
+                return item.resolved_title;
+            }
+
+            if (item.given_title) {
+                return item.given_title;
+            }
+
+            if (item.given_url) {
+                return item.given_url;
+            }
+
+            return '(No title found)';
+        },
+
+        resolveUrl: function(item) {
+            if (item.resolved_url) {
+                return item.resolved_url;
+            }
+
+            if (item.given_url) {
+                return item.given_url;
+            }
+
+            return '';
         },
 
         baseUrl: function(url) {
@@ -222,15 +250,6 @@ new Vue({
             }
             return domain;
         },
-
-        // If the value is undefined or empty, replace it with a default value.
-        getDefault: function(string, defaultValue) {
-            if (typeof string === 'undefined' || string.length === 0) {
-                return defaultValue;
-            }
-
-            return string;
-        }
     },
 
     computed: {

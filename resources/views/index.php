@@ -142,24 +142,24 @@
         <div id="items" v-cloak v-show="username">
             <ol class="list-group" style="margin-top: 30px">
                 <li v-for="item in items | orderBy 'time_added' -1" class="list-group-item">
-                    <strong style="font-size:1.3em">{{ item.resolved_title | getDefault '(No Title Found)' }}</strong>
+                    <strong style="font-size:1.3em">{{ item | resolveTitle }}</strong>
                     <div>
                         <span class="item_link">
-                            <a style="color:#999;margin-right:10px" href="{{ item.resolved_url }}">{{ item.resolved_url | baseUrl }}</a>
+                            <a style="color:#999;margin-right:10px" href="{{ item | resolveUrl }}">{{ item | resolveUrl | baseUrl }}</a>
                             <em>{{ item.time_added | formatDate }}</em>
                         </span>
                     </div>
 
                     <div class="action_icons">
                         <a class="action_icon"
-                           href="{{ item.resolved_url }}"
+                           href="{{ item | resolveUrl }}"
                            target="_blank"
                            @click="doAction('delete', item.item_id)"
                            ><img src="/images/open_and_delete.png"
                                  title="Open and Delete"></a>
 
                         <a class="action_icon"
-                           href="{{ item.resolved_url }}"
+                           href="{{ item | resolveUrl }}"
                            target="_blank"
                            @click="doAction('archive', item.item_id)"
                            ><img src="/images/open_and_archive.png"
