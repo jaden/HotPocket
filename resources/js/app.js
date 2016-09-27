@@ -1,7 +1,7 @@
 var Vue = require('vue');
 Vue.use(require('vue-resource'));
 
-var moment    = require('moment');
+var timeago   = require("timeago.js");
 var URL       = require('url-parse');
 var nprogress = require('nprogress');
 var cache     = require('./local_storage');
@@ -13,11 +13,11 @@ new Vue({
     el: '#pocketApp',
 
     data: {
-        username      : '',
-        items         : {},
-        count         : 8,
-        current_offset: 0,
-        total_items   : null,
+        username       : '',
+        items          : {},
+        count          : 8,
+        current_offset : 0,
+        total_items    : null,
     },
 
     created: function () {
@@ -142,6 +142,7 @@ new Vue({
                 this.endProgress();
 
                 // Get the next page of items if there aren't any left.
+                // TODO This may be causing an infinite loop if there aren't any items left
                 if (this.itemsKeys.length === 0) {
                     this.getItems(this.count, 0);
                 }
@@ -166,6 +167,7 @@ new Vue({
 
                 if (data.list === null || data.list === undefined) {
                     window.data = data;
+                    // TODO This could also be that the account has no items left - test and handle that case
                     console.log('The request was successful, but there were no items. Logging out.');
                     console.log(data);
                     this.logout();
@@ -211,7 +213,7 @@ new Vue({
     filters: {
 
         formatDate: function(date) {
-            return moment.unix(date).fromNow();
+            return new timeago().format(date * 1000); // Convert timestamp to milliseconds
         },
 
         // Get title by order of preference. If it can't be found, try URL
