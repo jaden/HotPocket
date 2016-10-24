@@ -6,13 +6,13 @@
 
     <meta property="og:title" content="HotPocket" />
     <meta property="og:type" content="website" />
-    <meta property="og:url" content="http://pocket.snapmagic.com" />
-    <meta property="og:image" content="http://pocket.snapmagic.com/images/hotpocket-thumbnail.png" />
+    <meta property="og:url" content="https://pocket.snapmagic.com" />
+    <meta property="og:image" content="https://pocket.snapmagic.com/images/hotpocket-thumbnail.png" />
 
     <title>HotPocket</title>
     <?php include(base_path() . '/.timestamp.php'); ?>
     <link rel="stylesheet" type="text/css" href="/css/bundle<?php echo strlen($timestamp) > 0 ? '-' . $timestamp : ''; ?>.min.css">
-    <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro' rel='stylesheet' type='text/css'>
+    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro' rel='stylesheet' type='text/css'>
     <style>
         body {
             color: #555;
