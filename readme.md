@@ -4,9 +4,6 @@ Simple client to the [Pocket API](http://getpocket.com/developer/docs/getstarted
 
 Built with [Lumen](http://lumen.laravel.com/) and [Vuejs](http://vuejs.org/).
 
-## Demo site
-[HotPocket](http://pocket.snapmagic.com)
-
 ## To install
 
 1. Checkout repository
